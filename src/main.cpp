@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
     engine.rootContext()->setContextProperty(QStringLiteral("launchBigPicture"), parser.isSet(bigPictureOpt));
 
-    engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/qt/qml/qml/Main.qml")));
 
     if (engine.rootObjects().isEmpty())
         return -1;

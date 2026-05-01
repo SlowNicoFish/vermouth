@@ -60,9 +60,11 @@ qt_add_qml_module(vermouth
     RESOURCE_PREFIX /qt/qml
     QML_FILES
         qml/Main.qml
-        qml/AppGridView.qml
         qml/AddAppDialog.qml
+        qml/AppGridView.qml
         qml/RunExeDialog.qml
+        qml/RunExeStandaloneDialog.qml
+        qml/RuntimePicker.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
     NO_RESOURCE_TARGET_PATH

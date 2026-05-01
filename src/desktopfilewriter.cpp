@@ -63,9 +63,3 @@ bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app)
     QString filePath = dir + QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
     return writeDesktopFile(filePath, app);
 }
-
-bool DesktopFileWriter::removeStartMenuEntry(const QString &name)
-{
-    QString dir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
-    return QFile::remove(dir + QStringLiteral("/vermouth-") + safeName(name) + QStringLiteral(".desktop"));
-}

@@ -12,7 +12,6 @@ public:
 
     Q_INVOKABLE bool createStartMenuEntry(const QVariantMap &app);
     Q_INVOKABLE bool createDesktopShortcut(const QVariantMap &app);
-    Q_INVOKABLE bool removeStartMenuEntry(const QString &name);
 
 private:
     QString safeName(const QString &name) const;

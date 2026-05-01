@@ -38,4 +38,5 @@ public:
     QJsonObject toJson() const;
     QVariantMap toVariantMap() const;
     static AppEntry fromJson(const QJsonObject &obj);
+    void updateFromVariantMap(const QVariantMap &map);
 };
