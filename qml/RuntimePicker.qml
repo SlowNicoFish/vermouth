@@ -79,14 +79,14 @@ ColumnLayout {
             prevPath = protonModel.get(protonCombo.currentIndex).path;
         protonModel.clear();
         var versions = protonScanner.findProtonVersions();
-        for (var i = 0; i < versions.length; i++) {
-            var parts = versions[i].split("/");
+        for (let i = 0; i < versions.length; i++) {
+            let parts = versions[i].split("/");
             protonModel.append({
                 "label": parts[parts.length - 1],
                 "path": versions[i]
             });
         }
-        for (var i = 0; i < protonModel.count; i++) {
+        for (let i = 0; i < protonModel.count; i++) {
             if (protonModel.get(i).path === prevPath) {
                 protonCombo.currentIndex = i;
                 return;

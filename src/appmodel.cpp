@@ -63,8 +63,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.exePath;
     case RuntimeTypeRole:
         return e.runtimeType == AppEntry::Proton ? QStringLiteral("proton")
-            : e.runtimeType == AppEntry::Native  ? QStringLiteral("native")
-                                                 : QStringLiteral("wine");
+            : e.runtimeType == AppEntry::Wine    ? QStringLiteral("wine")
+                                                 : QStringLiteral("native");
     case ProtonPathRole:
         return e.protonPath;
     case ProtonPrefixRole:
@@ -112,37 +112,11 @@ QHash<int, QByteArray> AppModel::roleNames() const
     };
 }
 
-void AppModel::addApp(const QString &name,
-                      const QString &exePath,
-                      const QString &runtimeType,
-                      const QString &protonPath,
-                      const QString &protonPrefix,
-                      const QString &wineBinary,
-                      const QString &winePrefix,
-                      const QString &iconPath,
-                      const QString &gridPath,
-                      const QString &heroPath,
-                      const QString &launchOptions,
-                      bool enableLogging,
-                      const QString &logoPath,
-                      int steamGridDbId)
+void AppModel::addApp(const QVariantMap &app)
 {
     AppEntry e;
     e.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    e.name = name;
-    e.exePath = exePath;
-    e.runtimeType = runtimeType == QStringLiteral("proton") ? AppEntry::Proton : runtimeType == QStringLiteral("native") ? AppEntry::Native : AppEntry::Wine;
-    e.protonPath = protonPath;
-    e.protonPrefix = protonPrefix;
-    e.wineBinary = wineBinary;
-    e.winePrefix = winePrefix;
-    e.iconPath = iconPath;
-    e.gridPath = gridPath;
-    e.heroPath = heroPath;
-    e.logoPath = logoPath;
-    e.steamGridDbId = steamGridDbId;
-    e.launchOptions = launchOptions;
-    e.enableLogging = enableLogging;
+    e.updateFromVariantMap(app);
 
     beginResetModel();
     m_entries.append(e);
@@ -187,41 +161,14 @@ void AppModel::removeAndCleanApp(int index)
     AppModel::removeApp(index);
 }
 
-void AppModel::editApp(int index,
-                       const QString &name,
-                       const QString &exePath,
-                       const QString &runtimeType,
-                       const QString &protonPath,
-                       const QString &protonPrefix,
-                       const QString &wineBinary,
-                       const QString &winePrefix,
-                       const QString &iconPath,
-                       const QString &gridPath,
-                       const QString &heroPath,
-                       const QString &launchOptions,
-                       bool enableLogging,
-                       const QString &logoPath,
-                       int steamGridDbId)
+void AppModel::editApp(int index, const QVariantMap &app)
 {
     int src = sourceIndex(index);
     if (src < 0)
         return;
 
     auto &e = m_entries[src];
-    e.name = name;
-    e.exePath = exePath;
-    e.runtimeType = runtimeType == QStringLiteral("proton") ? AppEntry::Proton : runtimeType == QStringLiteral("native") ? AppEntry::Native : AppEntry::Wine;
-    e.protonPath = protonPath;
-    e.protonPrefix = protonPrefix;
-    e.wineBinary = wineBinary;
-    e.winePrefix = winePrefix;
-    e.iconPath = iconPath;
-    e.gridPath = gridPath;
-    e.heroPath = heroPath;
-    e.logoPath = logoPath;
-    e.steamGridDbId = steamGridDbId;
-    e.launchOptions = launchOptions;
-    e.enableLogging = enableLogging;
+    e.updateFromVariantMap(app);
 
     beginResetModel();
     rebuildFilter();

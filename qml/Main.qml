@@ -27,7 +27,6 @@ Kirigami.ApplicationWindow {
     readonly property color loAltBg: Qt.darker(loBase, 1.3)
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
-    property string autoArtStatus: ""
 
     Settings {
         id: windowSettings

@@ -150,31 +150,3 @@ void ProtonScanner::setExtraProtonPaths(const QStringList &paths)
 {
     m_extraProtonPaths = paths;
 }
-
-QStringList ProtonScanner::findExistingPrefixes() const
-{
-    QStringList result;
-
-    for (const auto &steamRoot : steamPaths()) {
-        QDir prefixDir(steamRoot + QStringLiteral("/steamapps/compatdata"));
-        if (!prefixDir.exists())
-            continue;
-
-        for (const auto &entry : prefixDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            QString path = prefixDir.absoluteFilePath(entry);
-            if (QFileInfo::exists(path + QStringLiteral("/pfx")))
-                result << path;
-        }
-    }
-
-    QString dataHome = ProtonScanner::prefixBasePath();
-    QDir customDir(dataHome);
-    if (customDir.exists()) {
-        for (const auto &entry : customDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
-            result << customDir.absoluteFilePath(entry);
-    }
-
-    result.removeDuplicates();
-    result.sort();
-    return result;
-}

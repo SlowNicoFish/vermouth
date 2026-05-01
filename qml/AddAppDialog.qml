@@ -163,10 +163,27 @@ Kirigami.Dialog {
         if (isNaN(sgdbId) || sgdbId < 0)
             sgdbId = 0;
 
+        var app = {
+            "name": nameField.text,
+            "exePath": exeField.text,
+            "runtimeType": rt,
+            "protonPath": protonPath,
+            "protonPrefix": protonPrefix,
+            "wineBinary": runtimePicker.wineBinary,
+            "winePrefix": winePrefix,
+            "iconPath": iconField.text,
+            "gridPath": gridField.text || "",
+            "heroPath": heroField.text || "",
+            "launchOptions": launchOptionsField.text || "",
+            "enableLogging": enableLoggingCheck.checked,
+            "logoPath": logoField.text || "",
+            "steamGridDbId": sgdbId
+        };
+
         if (editMode) {
-            appModel.editApp(editIndex, nameField.text, exeField.text, rt, protonPath, protonPrefix, runtimePicker.wineBinary, winePrefix, iconField.text, gridField.text, heroField.text, launchOptionsField.text, enableLoggingCheck.checked, logoField.text, sgdbId);
+            appModel.editApp(editIndex, app);
         } else {
-            appModel.addApp(nameField.text, exeField.text, rt, protonPath, protonPrefix, runtimePicker.wineBinary, winePrefix, iconField.text, gridField.text, heroField.text, launchOptionsField.text, enableLoggingCheck.checked, logoField.text, sgdbId);
+            appModel.addApp(app);
         }
 
         if (!editMode && settingsManager.autoDownloadArt && settingsManager.steamGridDbApiKey !== "") {

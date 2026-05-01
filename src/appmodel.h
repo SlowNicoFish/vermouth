@@ -39,37 +39,10 @@ public:
         return m_filtered.size();
     }
 
-    Q_INVOKABLE void addApp(const QString &name,
-                            const QString &exePath,
-                            const QString &runtimeType,
-                            const QString &protonPath,
-                            const QString &protonPrefix,
-                            const QString &wineBinary,
-                            const QString &winePrefix,
-                            const QString &iconPath,
-                            const QString &gridPath = QString(),
-                            const QString &heroPath = QString(),
-                            const QString &launchOptions = QString(),
-                            bool enableLogging = false,
-                            const QString &logoPath = QString(),
-                            int steamGridDbId = 0);
+    Q_INVOKABLE void addApp(const QVariantMap &app);
     Q_INVOKABLE void removeApp(int index);
     Q_INVOKABLE void removeAndCleanApp(int index);
-    Q_INVOKABLE void editApp(int index,
-                             const QString &name,
-                             const QString &exePath,
-                             const QString &runtimeType,
-                             const QString &protonPath,
-                             const QString &protonPrefix,
-                             const QString &wineBinary,
-                             const QString &winePrefix,
-                             const QString &iconPath,
-                             const QString &gridPath = QString(),
-                             const QString &heroPath = QString(),
-                             const QString &launchOptions = QString(),
-                             bool enableLogging = false,
-                             const QString &logoPath = QString(),
-                             int steamGridDbId = 0);
+    Q_INVOKABLE void editApp(int index, const QVariantMap &app);
     Q_INVOKABLE QVariantMap getApp(int index) const;
     Q_INVOKABLE QVariantMap getAppById(const QString &id) const;
     Q_INVOKABLE QVariantMap getAppByExePath(const QString &exePath) const;
