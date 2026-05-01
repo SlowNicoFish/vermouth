@@ -65,10 +65,10 @@ Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons,
 
 ### Fedora and Nobara
 
-Vermouth is available on [COPR](https://copr.fedorainfracloud.org/coprs/dekomote/vermouth/):
+Vermouth is available on [COPR](https://copr.fedorainfracloud.org/coprs/dekomote/Vermouth/):
 
 ```bash
-sudo dnf copr enable dekomote/vermouth
+sudo dnf copr enable dekomote/Vermouth
 sudo dnf install vermouth
 ```
 
