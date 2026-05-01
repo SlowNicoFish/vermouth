@@ -36,7 +36,10 @@ Kirigami.Dialog {
     property string autoDownloadTargetId: ""
     property bool pendingAutoDownload: false
     property bool autoDownloadingInDialog: false
+    property bool pendingInstallerRun: false
     property string autoDownloadStatus: ""
+    property string installerExePath: ""
+    property bool installerRunning: false
 
     function openForNew() {
         editMode = false;
@@ -54,6 +57,7 @@ Kirigami.Dialog {
         steamGridDbIdField.text = "";
         artSection.expanded = false;
         pendingAutoDownload = false;
+        pendingInstallerRun = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
         runtimePicker.reset();
@@ -81,12 +85,34 @@ Kirigami.Dialog {
             winePrefixField.text = "";
             return;
         }
-        var defaultPrefix = settingsManager.defaultGamePrefix;
-        var resolvedPrefix = defaultPrefix !== "" ? defaultPrefix : dialog.prefixBasePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
         if (protonPrefixField.text === "")
-            protonPrefixField.text = resolvedPrefix;
+            protonPrefixField.text = resolvePrefix();
         if (winePrefixField.text === "")
-            winePrefixField.text = resolvedPrefix;
+            winePrefixField.text = resolvePrefix();
+    }
+
+    function runInstallerInPrefix() {
+        if (runtimePicker.runtimeType === "native")
+            return;
+        if (exeField.text.trim() === "") {
+            pendingInstallerRun = true;
+            exeFileDialog.open();
+            return;
+        }
+
+        installerExePath = exeField.text;
+        installerRunning = true;
+
+        launcher.runInPrefix({
+            "name": nameField.text,
+            "runtimeType": runtimePicker.runtimeType,
+            "protonPath": runtimePicker.protonPath,
+            "protonPrefix": resolvePrefix(),
+            "wineBinary": runtimePicker.wineBinary,
+            "winePrefix": resolvePrefix(),
+            "launchOptions": "",
+            "enableLogging": false
+        }, exeField.text);
     }
 
     function openForNewLinux() {
@@ -231,6 +257,13 @@ Kirigami.Dialog {
                 QQC2.Button {
                     icon.name: "document-open"
                     onClicked: exeFileDialog.open()
+                }
+                QQC2.Button {
+                    visible: runtimePicker.runtimeType !== "native"
+                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning
+                    text: dialog.installerRunning ? i18n("Installing...") : i18n("Run installer in prefix")
+                    icon.name: dialog.installerRunning ? "dialog-information" : "system-run"
+                    onClicked: runInstallerInPrefix()
                 }
             }
 
@@ -474,12 +507,17 @@ Kirigami.Dialog {
     FileDialog {
         id: exeFileDialog
         title: i18n("Select Executable")
-        currentFolder: "file://" + protonScanner.homePath()
+        currentFolder: "file://" + (runtimePicker.runtimeType === "native" ? protonScanner.homePath() : resolvePrefix())
         nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.applyExePath(path);
+            if (dialog.pendingInstallerRun) {
+                dialog.pendingInstallerRun = false;
+                dialog.runInstallerInPrefix();
+            }
         }
+        onRejected: dialog.pendingInstallerRun = false
     }
 
     FileDialog {
@@ -581,6 +619,19 @@ Kirigami.Dialog {
         function onAutoDownloadProgress(step) {
             if (dialog.autoDownloadingInDialog)
                 dialog.autoDownloadStatus = step;
+        }
+    }
+
+    Connections {
+        target: launcher
+        function onRunningExePathsChanged() {
+            if (dialog.installerRunning && dialog.installerExePath !== "") {
+                var stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
+                if (!stillRunning) {
+                    dialog.installerRunning = false;
+                    dialog.installerExePath = "";
+                }
+            }
         }
     }
 }
