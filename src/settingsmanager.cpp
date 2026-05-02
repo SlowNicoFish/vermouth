@@ -282,3 +282,28 @@ void SettingsManager::setRommCore(const QString &platformSlug, const QString &co
     m_settings.setValue(QStringLiteral("rommCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
     Q_EMIT rommCoreMapChanged();
 }
+
+QVariantMap SettingsManager::rommGameCoreMap() const
+{
+    QString json = m_settings.value(QStringLiteral("rommGameCoreMap")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+QString SettingsManager::rommGameCore(int romId) const
+{
+    return rommGameCoreMap().value(QString::number(romId)).toString();
+}
+
+void SettingsManager::setRommGameCore(int romId, const QString &corePath)
+{
+    QVariantMap map = rommGameCoreMap();
+    QString key = QString::number(romId);
+    if (corePath.isEmpty())
+        map.remove(key);
+    else
+        map[key] = corePath;
+    m_settings.setValue(QStringLiteral("rommGameCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT rommGameCoreMapChanged();
+}

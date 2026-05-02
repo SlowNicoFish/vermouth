@@ -46,6 +46,7 @@ Item {
         function onRomCoreMissing(platformSlug, rom) {
             corePickerDialog.platformSlug = platformSlug;
             corePickerDialog.pendingRom = rom;
+            corePickerDialog.launchAfterPick = true;
             corePickerDialog.open();
         }
     }
@@ -381,6 +382,34 @@ Item {
                                 root.openFilePicker(rom);
                         }
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Change Core…")
+                        icon.name: "media-record"
+                        onTriggered: {
+                            var rom = rommModel.getRom(delegateRoot.index);
+                            corePickerDialog.platformSlug = delegateRoot.platformSlug;
+                            corePickerDialog.pendingRom = rom;
+                            corePickerDialog.launchAfterPick = false;
+                            corePickerDialog.open();
+                        }
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Copy Launch Command")
+                        icon.name: "edit-copy"
+                        onTriggered: {
+                            var rom = rommModel.getRom(delegateRoot.index);
+                            var cached = rommFileDownloader.cachedRomPath(delegateRoot.romId, delegateRoot.fileName);
+                            if (cached !== "")
+                                rom.localRomPath = cached;
+                            var cmd = launcher.buildRomLaunchCommand(rom);
+                            if (cmd !== "") {
+                                launcher.copyToClipboard(cmd);
+                                showPassiveNotification(i18n("Launch command copied to clipboard"), 2000);
+                            } else {
+                                showPassiveNotification(i18n("RetroArch not found"), 3000);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -416,29 +445,81 @@ Item {
         id: corePickerDialog
         property string platformSlug: ""
         property var pendingRom: null
+        property bool launchAfterPick: true
+        property var availableCores: []
+        property string customCorePath: ""
 
-        title: i18n("Select RetroArch core")
-        subtitle: i18n("No core configured for platform \"%1\". Select the .so core file to use.", platformSlug)
+        function resolvedPath() {
+            if (customCorePath !== "")
+                return customCorePath;
+            if (availableCores.length > 0 && coreCombo.currentIndex >= 0)
+                return availableCores[coreCombo.currentIndex];
+            return "";
+        }
+
+        title: pendingRom ? i18n("Select core for \"%1\"", pendingRom.name) : i18n("Select RetroArch core")
+        subtitle: i18n("Platform: %1", platformSlug)
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
 
+        onOpened: {
+            availableCores = launcher.availableCoresForPlatform(platformSlug);
+            customCorePath = "";
+            customCoreField.text = "";
+            coreCombo.currentIndex = availableCores.length > 0 ? 0 : -1;
+        }
+        onClosed: {
+            customCorePath = "";
+            availableCores = [];
+        }
         onAccepted: {
-            var path = corePathField.text.trim();
+            var path = resolvedPath();
             if (path !== "" && pendingRom !== null) {
-                settingsManager.setRommCore(platformSlug, path);
-                launcher.launchRom(pendingRom);
+                settingsManager.setRommGameCore(pendingRom.romId, path);
+                if (launchAfterPick)
+                    launcher.launchRom(pendingRom);
             }
         }
-        onClosed: corePathField.text = ""
 
-        RowLayout {
-            QQC2.TextField {
-                id: corePathField
+        ColumnLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.ComboBox {
+                id: coreCombo
                 Layout.fillWidth: true
-                placeholderText: i18n("Path to RetroArch core (.so)")
+                visible: corePickerDialog.availableCores.length > 0
+                model: corePickerDialog.availableCores.map(function (p) {
+                    return p.split("/").pop();
+                })
+                onActivated: {
+                    corePickerDialog.customCorePath = "";
+                    customCoreField.text = "";
+                }
             }
-            QQC2.Button {
-                icon.name: "document-open"
-                onClicked: coreFilePicker.open()
+
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                visible: corePickerDialog.availableCores.length === 0
+                type: Kirigami.MessageType.Warning
+                text: i18n("No cores found automatically for this platform.")
+            }
+
+            QQC2.Label {
+                text: corePickerDialog.availableCores.length > 0 ? i18n("Or use a custom core:") : i18n("Browse for a core file:")
+                opacity: 0.7
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                QQC2.TextField {
+                    id: customCoreField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Path to .so core file")
+                    onTextEdited: corePickerDialog.customCorePath = text.trim()
+                }
+                QQC2.Button {
+                    icon.name: "document-open"
+                    onClicked: coreFilePicker.open()
+                }
             }
         }
     }
@@ -447,7 +528,11 @@ Item {
         id: coreFilePicker
         title: i18n("Select RetroArch core")
         nameFilters: [i18n("RetroArch cores (*.so)"), i18n("All files (*)")]
-        onAccepted: corePathField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            corePickerDialog.customCorePath = path;
+            customCoreField.text = path;
+        }
     }
 
     // ── Multi-file picker dialog ─────────────────────────────────────────────

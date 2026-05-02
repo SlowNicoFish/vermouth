@@ -216,9 +216,13 @@ int main(int argc, char *argv[])
 
     launcher.setRetroarchPath(settingsManager.retroarchPath());
     launcher.setRommCoreMap(settingsManager.rommCoreMap());
+    launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
 
     QObject::connect(&settingsManager, &SettingsManager::rommCoreMapChanged, [&]() {
         launcher.setRommCoreMap(settingsManager.rommCoreMap());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::rommGameCoreMapChanged, [&]() {
+        launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
     });
     QObject::connect(&settingsManager, &SettingsManager::rommServerUrlChanged, [&]() {
         rommClient.setServerUrl(settingsManager.rommServerUrl());

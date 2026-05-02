@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include <QClipboard>
 #include <QCursor>
 #include <QDBusConnection>
 #include <QDBusInterface>
@@ -36,7 +37,17 @@ static const QHash<QString, QStringList> &platformCoreMap()
         {QStringLiteral("ps2"), {QStringLiteral("pcsx2_libretro.so")}},
         {QStringLiteral("psp"), {QStringLiteral("ppsspp_libretro.so")}},
         {QStringLiteral("mame"), {QStringLiteral("mame_libretro.so"), QStringLiteral("mame2016_libretro.so"), QStringLiteral("fbneo_libretro.so")}},
-        {QStringLiteral("arcade"), {QStringLiteral("fbneo_libretro.so"), QStringLiteral("mame_libretro.so"), QStringLiteral("mame2016_libretro.so")}},
+        {QStringLiteral("arcade"),
+         {
+             QStringLiteral("fbneo_libretro.so"),
+             QStringLiteral("mame_libretro.so"),
+             QStringLiteral("mame2016_libretro.so"),
+             QStringLiteral("fbalpha2012_libretro.so"),
+             QStringLiteral("mame2016_libretro.so"),
+             QStringLiteral("fbalpha2012_cps2_libretro.so"),
+             QStringLiteral("fbalpha2012_cps3_libretro.so"),
+             QStringLiteral("fbalpha2012_neogeo_libretro.so"),
+         }},
         {QStringLiteral("megadrive"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
         {QStringLiteral("genesis"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
         {QStringLiteral("sega-saturn"), {QStringLiteral("mednafen_saturn_libretro.so"), QStringLiteral("yabause_libretro.so")}},
@@ -55,7 +66,6 @@ static QStringList retroarchCoreDirs(const QString &retroarchBinary)
 {
     QString home = QDir::homePath();
     QStringList dirs;
-    qInfo() << retroarchBinary;
     if (retroarchBinary == QStringLiteral("__flatpak__"))
         dirs << home + QStringLiteral("/.var/app/org.libretro.RetroArch/config/retroarch/cores");
     dirs << home + QStringLiteral("/.config/retroarch/cores");
@@ -121,6 +131,11 @@ void Launcher::setRommCoreMap(const QVariantMap &map)
     m_rommCoreMap = map;
 }
 
+void Launcher::setRommGameCoreMap(const QVariantMap &map)
+{
+    m_rommGameCoreMap = map;
+}
+
 QString Launcher::resolveRetroarchBinary() const
 {
     if (!m_retroarchPath.isEmpty() && QFileInfo::exists(m_retroarchPath))
@@ -176,6 +191,54 @@ QString Launcher::autoDetectCore(const QString &platformSlug) const
     return {};
 }
 
+QStringList Launcher::availableCoresForPlatform(const QString &platformSlug) const
+{
+    QStringList candidates = platformCoreMap().value(platformSlug);
+    QStringList found;
+    for (const QString &dir : retroarchCoreDirs(m_retroarchBinary)) {
+        for (const QString &core : candidates) {
+            QString path = dir + QLatin1Char('/') + core;
+            if (QFileInfo::exists(path) && !found.contains(path))
+                found << path;
+        }
+    }
+    return found;
+}
+
+static QString shellQuoted(const QString &s)
+{
+    return QLatin1Char('\'') + QString(s).replace(QLatin1Char('\''), QStringLiteral("'\\''")) + QLatin1Char('\'');
+}
+
+QString Launcher::buildRomLaunchCommand(const QVariantMap &rom) const
+{
+    if (m_retroarchBinary.isEmpty())
+        return {};
+
+    QString platformSlug = rom[QStringLiteral("platformSlug")].toString();
+    int romId = rom[QStringLiteral("romId")].toInt();
+    QString romPath = rom[QStringLiteral("localRomPath")].toString();
+
+    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    if (corePath.isEmpty())
+        corePath = m_rommCoreMap.value(platformSlug).toString();
+    if (corePath.isEmpty())
+        corePath = autoDetectCore(platformSlug);
+    if (corePath.isEmpty())
+        corePath = QStringLiteral("<core.so>");
+    if (romPath.isEmpty())
+        romPath = QStringLiteral("<rom_path>");
+
+    if (m_retroarchBinary == QStringLiteral("__flatpak__"))
+        return QStringLiteral("flatpak run org.libretro.RetroArch -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
+    return shellQuoted(m_retroarchBinary) + QStringLiteral(" -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
+}
+
+void Launcher::copyToClipboard(const QString &text) const
+{
+    QGuiApplication::clipboard()->setText(text);
+}
+
 QString Launcher::detectRetroarchPath() const
 {
     QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
@@ -202,7 +265,10 @@ void Launcher::launchRom(const QVariantMap &rom)
         return;
     }
 
-    QString corePath = m_rommCoreMap.value(platformSlug).toString();
+    int romId = rom[QStringLiteral("romId")].toInt();
+    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    if (corePath.isEmpty())
+        corePath = m_rommCoreMap.value(platformSlug).toString();
     if (corePath.isEmpty()) {
         corePath = autoDetectCore(platformSlug);
         if (!corePath.isEmpty()) {

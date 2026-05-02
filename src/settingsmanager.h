@@ -87,6 +87,10 @@ public:
     Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
     Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
 
+    QVariantMap rommGameCoreMap() const;
+    Q_INVOKABLE QString rommGameCore(int romId) const;
+    Q_INVOKABLE void setRommGameCore(int romId, const QString &corePath);
+
 Q_SIGNALS:
     void defaultPrefixDirChanged();
     void defaultGamePrefixChanged();
@@ -105,6 +109,7 @@ Q_SIGNALS:
     void retroarchPathChanged();
     void romCacheDirChanged();
     void rommCoreMapChanged();
+    void rommGameCoreMapChanged();
 
 private:
     QSettings m_settings;
