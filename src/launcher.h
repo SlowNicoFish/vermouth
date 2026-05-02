@@ -22,9 +22,10 @@ public:
         return m_runningProcesses.keys();
     }
 
-    Q_INVOKABLE void launchEntry(const QVariantMap &app);
+    Q_INVOKABLE qint64 launchEntry(const QVariantMap &app);
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
-    Q_INVOKABLE void runInPrefix(const QVariantMap &app, const QString &exePath);
+    Q_INVOKABLE qint64 runInPrefix(const QVariantMap &app, const QString &exePath);
+    Q_INVOKABLE qint64 runningPidForExe(const QString &exePath) const;
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
     Q_INVOKABLE void runRegedit(const QVariantMap &app);
     Q_INVOKABLE void runWinetricks(const QVariantMap &app);
@@ -53,7 +54,7 @@ Q_SIGNALS:
     void hdrSupportedChanged();
 
 private:
-    void launch(const QString &binary,
+    qint64 launch(const QString &binary,
                 const QStringList &baseArgs,
                 const QString &exePath,
                 const QProcessEnvironment &env,

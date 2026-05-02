@@ -40,6 +40,8 @@ Kirigami.Dialog {
     property string autoDownloadStatus: ""
     property string installerExePath: ""
     property bool installerRunning: false
+    property int installerPid: 0
+    property bool offerExePickAfterInstaller: false
 
     function openForNew() {
         editMode = false;
@@ -103,7 +105,7 @@ Kirigami.Dialog {
         installerExePath = exeField.text;
         installerRunning = true;
 
-        launcher.runInPrefix({
+        var pid = launcher.runInPrefix({
             "name": nameField.text,
             "runtimeType": runtimePicker.runtimeType,
             "protonPath": runtimePicker.protonPath,
@@ -113,6 +115,11 @@ Kirigami.Dialog {
             "launchOptions": "",
             "enableLogging": false
         }, exeField.text);
+
+        if (pid && pid > 0)
+            installerPid = pid;
+        else
+            installerPid = 0;
     }
 
     function openForNewLinux() {
@@ -261,8 +268,10 @@ Kirigami.Dialog {
                 QQC2.Button {
                     visible: runtimePicker.runtimeType !== "native"
                     enabled: nameField.text.trim() !== "" && !dialog.installerRunning
-                    text: dialog.installerRunning ? i18n("Installing...") : i18n("Run installer in prefix")
                     icon.name: dialog.installerRunning ? "dialog-information" : "system-run"
+                    QQC2.ToolTip.text: dialog.installerRunning ? i18n("Installing...") : i18n("Run installer in prefix")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                     onClicked: runInstallerInPrefix()
                 }
             }
@@ -507,13 +516,14 @@ Kirigami.Dialog {
     FileDialog {
         id: exeFileDialog
         title: i18n("Select Executable")
-        currentFolder: "file://" + (runtimePicker.runtimeType === "native" ? protonScanner.homePath() : resolvePrefix())
+        currentFolder: "file://" + protonScanner.homePath()
         nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.applyExePath(path);
             if (dialog.pendingInstallerRun) {
                 dialog.pendingInstallerRun = false;
+                dialog.offerExePickAfterInstaller = true;
                 dialog.runInstallerInPrefix();
             }
         }
@@ -626,10 +636,30 @@ Kirigami.Dialog {
         target: launcher
         function onRunningExePathsChanged() {
             if (dialog.installerRunning && dialog.installerExePath !== "") {
-                var stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
-                if (!stillRunning) {
-                    dialog.installerRunning = false;
-                    dialog.installerExePath = "";
+                if (dialog.installerPid && dialog.installerPid > 0) {
+                    let currentPid = launcher.runningPidForExe(dialog.installerExePath);
+                    console.log("Current PID for installer exe:", currentPid);
+                    if (currentPid !== dialog.installerPid) {
+                        dialog.installerRunning = false;
+                        dialog.installerExePath = "";
+                        dialog.installerPid = 0;
+                        if (dialog.offerExePickAfterInstaller) {
+                            dialog.offerExePickAfterInstaller = false;
+                            exeFileDialog.currentFolder = "file://" + dialog.resolvePrefix();
+                            exeFileDialog.open();
+                        }
+                    }
+                } else {
+                    let stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
+                    if (!stillRunning) {
+                        dialog.installerRunning = false;
+                        dialog.installerExePath = "";
+                        if (dialog.offerExePickAfterInstaller) {
+                            dialog.offerExePickAfterInstaller = false;
+                            exeFileDialog.currentFolder = "file://" + dialog.resolvePrefix();
+                            exeFileDialog.open();
+                        }
+                    }
                 }
             }
         }
