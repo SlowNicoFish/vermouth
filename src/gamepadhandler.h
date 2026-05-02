@@ -31,6 +31,7 @@ Q_SIGNALS:
     void l1Pressed();
     void r1Pressed();
     void l2Pressed();
+    void r2Pressed();
     void connectedChanged();
 
 private:
@@ -42,6 +43,7 @@ private:
     int m_rightX = 0, m_rightY = 0;
     int m_axisDirLast = 0;
     bool m_l2WasPressed = false;
+    bool m_r2WasPressed = false;
     static constexpr int kDeadzone = 8000;
     void pollEvents();
     int axisDirection() const;

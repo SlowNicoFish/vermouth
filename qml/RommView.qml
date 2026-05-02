@@ -4,7 +4,7 @@ import QtQuick.Dialogs
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
-Item {
+FocusScope {
     id: root
 
     property bool lightsOut: false
@@ -179,6 +179,14 @@ Item {
                     radius: Kirigami.Units.cornerRadius
                     color: "transparent"
                     layer.enabled: root.viewType !== "icon"
+                    scale: delegateRoot.isSelected ? 1.06 : 1.0
+                    z: delegateRoot.isSelected ? 2 : 0
+                    Behavior on scale {
+                        NumberAnimation {
+                            duration: 120
+                            easing.type: Easing.OutCubic
+                        }
+                    }
 
                     SequentialAnimation {
                         id: launchAnim
@@ -359,7 +367,7 @@ Item {
                         radius: Kirigami.Units.cornerRadius
                         color: "transparent"
                         border.color: delegateRoot.isSelected ? Kirigami.Theme.highlightColor : mouseArea.containsMouse ? Qt.darker(Kirigami.Theme.highlightColor, 1.5) : "transparent"
-                        border.width: delegateRoot.isSelected ? 2 : mouseArea.containsMouse ? 1 : 0
+                        border.width: delegateRoot.isSelected ? 3 : mouseArea.containsMouse ? 1 : 0
                         z: 5
                         Behavior on border.color {
                             ColorAnimation {

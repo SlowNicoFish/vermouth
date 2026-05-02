@@ -199,6 +199,13 @@ void GamepadHandler::pollEvents()
                 m_l2WasPressed = pressed;
                 break;
             }
+            case SDL_CONTROLLER_AXIS_TRIGGERRIGHT: {
+                bool pressed = ev.caxis.value > 16000;
+                if (pressed && !m_r2WasPressed)
+                    Q_EMIT r2Pressed();
+                m_r2WasPressed = pressed;
+                break;
+            }
             }
             break;
         }

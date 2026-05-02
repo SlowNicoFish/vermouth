@@ -28,6 +28,10 @@ Kirigami.ApplicationWindow {
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
     property int activeTab: 0
+    readonly property var tabViews: [gridView, rommView]
+    function activeGridView() {
+        return tabViews[activeTab] ?? gridView;
+    }
 
     Settings {
         id: windowSettings
@@ -271,6 +275,7 @@ Kirigami.ApplicationWindow {
                                 rommModel.fetchRoms(plat.id, rommView.searchText);
                             }
                         }
+
                         // id=0 means "All" — API treats it as no filter
                     }
 
@@ -316,6 +321,9 @@ Kirigami.ApplicationWindow {
                             rommView.refresh();
                         }
                     }
+                    Qt.callLater(function () {
+                        root.activeGridView().forceActiveFocus();
+                    });
                 }
 
                 QQC2.TabButton {
@@ -620,7 +628,7 @@ Kirigami.ApplicationWindow {
                 return;
             if (globalDrawer.drawerOpen) {
                 globalDrawer.close();
-                gridView.forceActiveFocus();
+                root.activeGridView().forceActiveFocus();
             } else {
                 globalDrawer.open();
             }
@@ -635,12 +643,15 @@ Kirigami.ApplicationWindow {
         }
 
         function onBPressed() {
-            if (globalDrawer.drawerOpen) {
+            if (rommPlatformCombo.popup.visible) {
+                rommPlatformCombo.popup.close();
+                root.activeGridView().forceActiveFocus();
+            } else if (globalDrawer.drawerOpen) {
                 globalDrawer.close();
-                gridView.forceActiveFocus();
+                root.activeGridView().forceActiveFocus();
             } else {
                 gridView.currentIndex = -1;
-                gridView.forceActiveFocus();
+                root.activeGridView().forceActiveFocus();
             }
         }
 
@@ -676,10 +687,19 @@ Kirigami.ApplicationWindow {
             mainTabBar.currentIndex = Math.min(mainTabBar.count - 1, mainTabBar.currentIndex + 1);
         }
 
-        function onL2Pressed() {
+        function onR2Pressed() {
             if (root.activeTab === 1 && rommPlatformCombo.visible) {
-                rommPlatformCombo.forceActiveFocus();
-                rommPlatformCombo.popup.open();
+                if (rommPlatformCombo.popup.visible) {
+                    rommPlatformCombo.popup.close();
+                    rommPlatformCombo.popup.contentItem.currentIndex = 0;
+                    root.activeGridView().forceActiveFocus();
+                } else {
+                    rommPlatformCombo.popup.open();
+                    Qt.callLater(function () {
+                        rommPlatformCombo.popup.contentItem.currentIndex = 0;
+                        rommPlatformCombo.popup.contentItem.forceActiveFocus();
+                    });
+                }
             }
         }
     }
@@ -687,10 +707,12 @@ Kirigami.ApplicationWindow {
     Connections {
         target: globalDrawer
         function onDrawerOpenChanged() {
-            if (globalDrawer.drawerOpen && globalDrawer.modal)
+            if (globalDrawer.drawerOpen && globalDrawer.modal) {
                 drawerFocusTimer.start();
-            else
+            } else if (!globalDrawer.drawerOpen) {
                 drawerFocusTimer.stop();
+                root.activeGridView().forceActiveFocus();
+            }
         }
     }
 
