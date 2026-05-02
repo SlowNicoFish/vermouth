@@ -302,9 +302,21 @@ Kirigami.ApplicationWindow {
                 id: mainTabBar
                 Layout.fillWidth: true
                 currentIndex: root.activeTab
-                visible: !root.bigPicture
                 Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                 Kirigami.Theme.inherit: false
+
+                property var tabs: [
+                    {
+                        name: i18n("Games"),
+                        enabled: true
+                    },
+                    {
+                        name: i18n("RomM"),
+                        enabled: settingsManager.rommServerUrl !== ""
+                    }
+                ]
+                readonly property int enabledTabCount: tabs.filter(t => t.enabled).length
+                visible: enabledTabCount > 1
 
                 background: Rectangle {
                     color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
@@ -326,12 +338,13 @@ Kirigami.ApplicationWindow {
                     });
                 }
 
-                QQC2.TabButton {
-                    text: i18n("Games")
-                }
-                QQC2.TabButton {
-                    text: i18n("RomM")
-                    enabled: settingsManager.rommServerUrl !== ""
+                Repeater {
+                    model: mainTabBar.tabs
+                    QQC2.TabButton {
+                        text: modelData.name
+                        enabled: modelData.enabled
+                        visible: modelData.enabled
+                    }
                 }
             }
         }
@@ -680,11 +693,13 @@ Kirigami.ApplicationWindow {
         }
 
         function onL1Pressed() {
-            mainTabBar.currentIndex = Math.max(0, mainTabBar.currentIndex - 1);
+            if (mainTabBar.enabledTabCount > 1)
+                mainTabBar.currentIndex = Math.max(0, mainTabBar.currentIndex - 1);
         }
 
         function onR1Pressed() {
-            mainTabBar.currentIndex = Math.min(mainTabBar.count - 1, mainTabBar.currentIndex + 1);
+            if (mainTabBar.enabledTabCount > 1)
+                mainTabBar.currentIndex = Math.min(mainTabBar.count - 1, mainTabBar.currentIndex + 1);
         }
 
         function onR2Pressed() {
