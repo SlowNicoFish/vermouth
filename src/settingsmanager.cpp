@@ -1,4 +1,5 @@
 #include "settingsmanager.h"
+#include <QStandardPaths>
 
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)
@@ -199,4 +200,59 @@ void SettingsManager::setAutoDownloadArt(bool enabled)
         return;
     m_settings.setValue(QStringLiteral("autoDownloadArt"), enabled);
     Q_EMIT autoDownloadArtChanged();
+}
+
+QString SettingsManager::rommServerUrl() const
+{
+    return m_settings.value(QStringLiteral("rommServerUrl")).toString();
+}
+
+void SettingsManager::setRommServerUrl(const QString &url)
+{
+    if (rommServerUrl() == url)
+        return;
+    m_settings.setValue(QStringLiteral("rommServerUrl"), url);
+    Q_EMIT rommServerUrlChanged();
+}
+
+QString SettingsManager::rommApiKey() const
+{
+    return m_settings.value(QStringLiteral("rommApiKey")).toString();
+}
+
+void SettingsManager::setRommApiKey(const QString &key)
+{
+    if (rommApiKey() == key)
+        return;
+    m_settings.setValue(QStringLiteral("rommApiKey"), key);
+    Q_EMIT rommApiKeyChanged();
+}
+
+QString SettingsManager::retroarchPath() const
+{
+    return m_settings.value(QStringLiteral("retroarchPath")).toString();
+}
+
+void SettingsManager::setRetroarchPath(const QString &path)
+{
+    if (retroarchPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("retroarchPath"), path);
+    Q_EMIT retroarchPathChanged();
+}
+
+QString SettingsManager::romCacheDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("romCacheDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/romm");
+}
+
+void SettingsManager::setRomCacheDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("romCacheDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("romCacheDir"), dir);
+    Q_EMIT romCacheDirChanged();
 }

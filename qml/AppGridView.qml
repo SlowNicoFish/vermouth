@@ -32,6 +32,7 @@ GridView {
     clip: true
     focus: true
     keyNavigationEnabled: true
+    property bool active: true
 
     TapHandler {
         onTapped: {
@@ -41,7 +42,7 @@ GridView {
 
     Shortcut {
         sequence: "Return"
-        enabled: gridView.currentIndex >= 0
+        enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
             launcher.launchEntry(app);
@@ -49,7 +50,7 @@ GridView {
     }
     Shortcut {
         sequence: "Delete"
-        enabled: gridView.currentIndex >= 0
+        enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
             confirmDeleteAppDialog.runtimeType = app.runtimeType;
@@ -59,7 +60,7 @@ GridView {
     }
     Shortcut {
         sequence: "Shift+Delete"
-        enabled: gridView.currentIndex >= 0 && appModel.getApp(gridView.currentIndex).runtimeType !== "native"
+        enabled: gridView.active && gridView.currentIndex >= 0 && appModel.getApp(gridView.currentIndex).runtimeType !== "native"
         onActivated: {
             confirmDeleteDialog.payload = gridView.currentIndex;
             confirmDeleteDialog.open();

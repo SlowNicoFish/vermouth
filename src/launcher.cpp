@@ -62,6 +62,68 @@ void Launcher::setUmuPath(const QString &path)
     m_umuPath = path;
 }
 
+void Launcher::setRetroarchPath(const QString &path)
+{
+    m_retroarchPath = path;
+}
+
+QString Launcher::resolveRetroarchBinary() const
+{
+    if (!m_retroarchPath.isEmpty() && QFileInfo::exists(m_retroarchPath))
+        return m_retroarchPath;
+
+    QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
+    if (!found.isEmpty())
+        return found;
+
+    // Check if RetroArch is installed as a flatpak
+    QProcess check;
+    check.start(QStringLiteral("flatpak"), {QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
+    check.waitForFinished(3000);
+    if (check.exitCode() == 0)
+        return QStringLiteral("__flatpak__");
+
+    return {};
+}
+
+QString Launcher::detectRetroarchPath() const
+{
+    QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
+    if (!found.isEmpty())
+        return found;
+
+    QProcess check;
+    check.start(QStringLiteral("flatpak"), {QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
+    check.waitForFinished(3000);
+    if (check.exitCode() == 0)
+        return QStringLiteral("flatpak:org.libretro.RetroArch");
+
+    return {};
+}
+
+void Launcher::launchRom(const QVariantMap &rom)
+{
+    QString romPath = rom[QStringLiteral("localRomPath")].toString();
+    QString name = rom[QStringLiteral("name")].toString();
+
+    if (romPath.isEmpty()) {
+        Q_EMIT launchError(name, QStringLiteral("ROM file not downloaded. Download it first."));
+        return;
+    }
+
+    QString binary = resolveRetroarchBinary();
+    if (binary.isEmpty()) {
+        Q_EMIT launchError(name, QStringLiteral("RetroArch not found. Install RetroArch or set its path in Settings."));
+        return;
+    }
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    if (binary == QStringLiteral("__flatpak__"))
+        launch(QStringLiteral("flatpak"), {QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")}, romPath, env, {}, false, name);
+    else
+        launch(binary, {}, romPath, env, {}, false, name);
+}
+
 void Launcher::setGlobalEnvVars(const QStringList &vars)
 {
     m_globalEnvVars = vars;

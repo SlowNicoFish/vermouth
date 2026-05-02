@@ -27,6 +27,7 @@ Kirigami.ApplicationWindow {
     readonly property color loAltBg: Qt.darker(loBase, 1.3)
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
+    property int activeTab: 0
 
     Settings {
         id: windowSettings
@@ -147,99 +148,204 @@ Kirigami.ApplicationWindow {
     }
 
     pageStack.globalToolBar.style: Kirigami.ApplicationHeaderStyle.None
-    pageStack.initialPage: Kirigami.ScrollablePage {
+    pageStack.initialPage: Kirigami.Page {
         id: mainPage
+        padding: 0
 
         background: Rectangle {
             color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
         }
 
-        header: QQC2.ToolBar {
-            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-            topPadding: Kirigami.Units.largeSpacing
-            bottomPadding: Kirigami.Units.largeSpacing
+        header: ColumnLayout {
+            spacing: 0
 
-            background: Rectangle {
-                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+            QQC2.ToolBar {
+                Layout.fillWidth: true
+                Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                topPadding: Kirigami.Units.largeSpacing
+                bottomPadding: Kirigami.Units.largeSpacing
+
+                background: Rectangle {
+                    color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+                }
+
+                contentItem: RowLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    QQC2.ToolButton {
+                        icon.name: "application-menu"
+                        visible: globalDrawer.modal
+                        onClicked: globalDrawer.open()
+                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    }
+
+                    Item {
+                        Layout.fillWidth: root.bigPicture
+                        visible: root.bigPicture
+                    }
+
+                    Kirigami.SearchField {
+                        id: searchField
+                        Layout.fillWidth: !root.bigPicture
+                        Layout.preferredWidth: root.bigPicture ? Kirigami.Units.gridUnit * 28 : -1
+                        font.pixelSize: root.bigPicture ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8) : Kirigami.Theme.defaultFont.pixelSize
+                        onTextChanged: {
+                            if (root.activeTab === 0)
+                                appModel.setFilterString(text);
+                            else
+                                rommView.applySearch(text);
+                        }
+                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        background: Rectangle {
+                            color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
+                            border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
+                            radius: 4
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: root.bigPicture
+                        visible: root.bigPicture
+                    }
+
+                    QQC2.ToolButton {
+                        id: addBtn
+                        text: i18n("Add &App/Game")
+                        icon.name: "list-add"
+                        icon.color: root.lightsOut ? root.loText : "transparent"
+                        visible: !root.bigPicture && root.activeTab === 0
+                        onClicked: addMenu.popup(addBtn, 0, addBtn.height)
+                    }
+                    QQC2.Menu {
+                        id: addMenu
+                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
+                        QQC2.MenuItem {
+                            text: i18n("Add Windows App/Game")
+                            icon.name: "list-add"
+                            onTriggered: addDialog.openForNewWindows()
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Add Linux App/Game")
+                            icon.name: "list-add"
+                            onTriggered: addDialog.openForNewLinux()
+                        }
+                    }
+
+                    QQC2.ComboBox {
+                        id: rommPlatformCombo
+                        visible: !root.bigPicture && root.activeTab === 1
+                        model: rommView.platforms
+                        textRole: "name"
+                        implicitWidth: Kirigami.Units.gridUnit * 12
+                        displayText: count > 0 ? currentText : i18n("Select platform…")
+
+                        contentItem: Text {
+                            leftPadding: Kirigami.Units.smallSpacing
+                            rightPadding: rommPlatformCombo.indicator.width + rommPlatformCombo.spacing
+                            text: rommPlatformCombo.displayText
+                            font: rommPlatformCombo.font
+                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
+                        background: Rectangle {
+                            color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
+                            border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
+                            radius: 4
+                        }
+
+                        onModelChanged: {
+                            var platforms = rommView.platforms;
+                            if (platforms && platforms.length > 0) {
+                                currentIndex = 0;
+                                rommView.currentPlatformId = platforms[0].id;
+                                rommModel.fetchRoms(platforms[0].id, rommView.searchText);
+                            } else {
+                                currentIndex = -1;
+                                rommView.currentPlatformId = -1;
+                            }
+                        }
+                        onActivated: {
+                            if (currentIndex >= 0 && currentIndex < rommView.platforms.length) {
+                                var plat = rommView.platforms[currentIndex];
+                                rommView.currentPlatformId = plat.id;
+                                rommModel.fetchRoms(plat.id, rommView.searchText);
+                            }
+                        }
+                    }
+
+                    QQC2.ToolButton {
+                        property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
+                        visible: !root.bigPicture && root.activeTab === 0
+                        icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
+                        icon.color: root.lightsOut ? root.loText : "transparent"
+                        enabled: gridView.currentIndex >= 0
+                        onClicked: {
+                            var app = appModel.getApp(gridView.currentIndex);
+                            if (isRunning)
+                                launcher.stopEntry(app);
+                            else
+                                launcher.launchEntry(app);
+                        }
+                    }
+                }
             }
 
-            contentItem: RowLayout {
-                spacing: Kirigami.Units.smallSpacing
+            // Tab bar
+            QQC2.TabBar {
+                id: mainTabBar
+                Layout.fillWidth: true
+                currentIndex: root.activeTab
+                visible: !root.bigPicture
+                Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                Kirigami.Theme.inherit: false
 
-                QQC2.ToolButton {
-                    icon.name: "application-menu"
-                    visible: globalDrawer.modal
-                    onClicked: globalDrawer.open()
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                background: Rectangle {
+                    color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
                 }
 
-                Item {
-                    Layout.fillWidth: root.bigPicture
-                    visible: root.bigPicture
-                }
-
-                Kirigami.SearchField {
-                    id: searchField
-                    Layout.fillWidth: !root.bigPicture
-                    Layout.preferredWidth: root.bigPicture ? Kirigami.Units.gridUnit * 28 : -1
-                    font.pixelSize: root.bigPicture ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8) : Kirigami.Theme.defaultFont.pixelSize
-                    onTextChanged: appModel.setFilterString(text)
-                    color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                    background: Rectangle {
-                        color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
-                        border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
-                        radius: 4
+                onCurrentIndexChanged: {
+                    root.activeTab = currentIndex;
+                    searchField.text = "";
+                    if (currentIndex === 0) {
+                        appModel.setFilterString("");
+                    } else {
+                        rommView.searchText = "";
+                        if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy) {
+                            rommView.refresh();
+                        }
                     }
                 }
 
-                Item {
-                    Layout.fillWidth: root.bigPicture
-                    visible: root.bigPicture
+                QQC2.TabButton {
+                    text: i18n("Games")
                 }
-                QQC2.ToolButton {
-                    id: addBtn
-                    text: i18n("Add &App/Game")
-                    icon.name: "list-add"
-                    icon.color: root.lightsOut ? root.loText : "transparent"
-                    visible: !root.bigPicture
-                    onClicked: addMenu.popup(addBtn, 0, addBtn.height)
-                }
-                QQC2.Menu {
-                    id: addMenu
-                    closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
-                    QQC2.MenuItem {
-                        text: i18n("Add Windows App/Game")
-                        icon.name: "list-add"
-                        onTriggered: addDialog.openForNewWindows()
-                    }
-                    QQC2.MenuItem {
-                        text: i18n("Add Linux App/Game")
-                        icon.name: "list-add"
-                        onTriggered: addDialog.openForNewLinux()
-                    }
-                }
-                QQC2.ToolButton {
-                    property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
-                    visible: !root.bigPicture
-                    icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
-                    icon.color: root.lightsOut ? root.loText : "transparent"
-                    enabled: gridView.currentIndex >= 0
-                    onClicked: {
-                        var app = appModel.getApp(gridView.currentIndex);
-                        if (isRunning)
-                            launcher.stopEntry(app);
-                        else
-                            launcher.launchEntry(app);
-                    }
+                QQC2.TabButton {
+                    text: i18n("ROMM")
+                    enabled: settingsManager.rommServerUrl !== ""
                 }
             }
         }
 
-        AppGridView {
-            id: gridView
+        // Main content switcher
+        StackLayout {
             anchors.fill: parent
-            lightsOut: root.lightsOut
-        }
+            currentIndex: root.activeTab
+
+            AppGridView {
+                id: gridView
+                lightsOut: root.lightsOut
+                active: root.activeTab === 0
+            }
+
+            RommView {
+                id: rommView
+                lightsOut: root.lightsOut
+                viewType: gridView.viewType
+                scaleFactor: gridView.scaleFactor
+                showNames: gridView.showNames
+            }
+        }  // StackLayout
 
         footer: QQC2.ToolBar {
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
@@ -258,6 +364,15 @@ Kirigami.ApplicationWindow {
                     color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
+                }
+                QQC2.Button {
+                    flat: true
+                    text: i18n("Load More")
+                    visible: root.activeTab === 1 && rommView.hasMore && !rommModel.busy
+                    onClicked: {
+                        var nextPage = Math.ceil(rommModel.count / 500) + 1;
+                        rommModel.fetchRoms(rommView.currentPlatformId, rommView.searchText, nextPage);
+                    }
                 }
                 QQC2.ToolButton {
                     icon.name: "system-suspend-inhibited"
@@ -423,6 +538,10 @@ Kirigami.ApplicationWindow {
     }
 
     function updateFooterStatus() {
+        if (root.activeTab === 1) {
+            footerStatusText.text = rommModel.count > 0 ? i18n("%1 ROMs", rommModel.count) : "";
+            return;
+        }
         if (gridView.currentIndex < 0) {
             footerStatusText.text = "";
             return;
@@ -575,6 +694,16 @@ Kirigami.ApplicationWindow {
             root.updateFooterStatus();
         }
     }
+
+    Connections {
+        target: rommModel
+        function onCountChanged() {
+            if (root.activeTab === 1)
+                root.updateFooterStatus();
+        }
+    }
+
+    onActiveTabChanged: root.updateFooterStatus()
 
     Connections {
         target: steamGridDb

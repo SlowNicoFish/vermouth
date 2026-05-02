@@ -51,6 +51,10 @@ qt_add_executable(vermouth
     src/singleinstance.cpp
     src/gamepadhandler.cpp
     src/steamgriddb.cpp
+    src/rommclient.cpp
+    src/rommcovercache.cpp
+    src/rommmodel.cpp
+    src/rommfiledownloader.cpp
     resources.qrc
 )
 
@@ -67,6 +71,7 @@ qt_add_qml_module(vermouth
         qml/RuntimePicker.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
+        qml/RommView.qml
     NO_RESOURCE_TARGET_PATH
 )
 

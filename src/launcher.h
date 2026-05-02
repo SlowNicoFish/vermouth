@@ -15,6 +15,7 @@ public:
 
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
+    void setRetroarchPath(const QString &path);
 
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
@@ -23,6 +24,8 @@ public:
     }
 
     Q_INVOKABLE void launchEntry(const QVariantMap &app);
+    Q_INVOKABLE void launchRom(const QVariantMap &rom);
+    Q_INVOKABLE QString detectRetroarchPath() const;
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
     Q_INVOKABLE void runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
@@ -63,8 +66,10 @@ private:
                 bool appendExe = true);
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
+    QString resolveRetroarchBinary() const;
     QString m_logDir;
     QString m_umuPath;
+    QString m_retroarchPath;
     QStringList m_globalEnvVars;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;

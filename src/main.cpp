@@ -5,6 +5,10 @@
 #include "launcher.h"
 #include "protondownloader.h"
 #include "protonscanner.h"
+#include "rommclient.h"
+#include "rommcovercache.h"
+#include "rommfiledownloader.h"
+#include "rommmodel.h"
 #include "settingsmanager.h"
 #include "singleinstance.h"
 #include "steamgriddb.h"
@@ -192,6 +196,44 @@ int main(int argc, char *argv[])
         protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
     });
 
+    // ROMM
+    RommClient rommClient;
+    rommClient.setServerUrl(settingsManager.rommServerUrl());
+    rommClient.setApiKey(settingsManager.rommApiKey());
+
+    RommCoverCache rommCoverCache;
+    rommCoverCache.setCacheDir(settingsManager.romCacheDir() + QStringLiteral("/covers"));
+    rommCoverCache.setApiKey(settingsManager.rommApiKey());
+
+    RommModel rommModel;
+    rommModel.setClient(&rommClient);
+    rommModel.setCoverCache(&rommCoverCache);
+
+    RommFileDownloader rommFileDownloader;
+    rommFileDownloader.setServerUrl(settingsManager.rommServerUrl());
+    rommFileDownloader.setApiKey(settingsManager.rommApiKey());
+    rommFileDownloader.setRomCacheDir(settingsManager.romCacheDir());
+
+    launcher.setRetroarchPath(settingsManager.retroarchPath());
+
+    QObject::connect(&settingsManager, &SettingsManager::rommServerUrlChanged, [&]() {
+        rommClient.setServerUrl(settingsManager.rommServerUrl());
+        rommFileDownloader.setServerUrl(settingsManager.rommServerUrl());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::rommApiKeyChanged, [&]() {
+        rommClient.setApiKey(settingsManager.rommApiKey());
+        rommCoverCache.setApiKey(settingsManager.rommApiKey());
+        rommFileDownloader.setApiKey(settingsManager.rommApiKey());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::romCacheDirChanged, [&]() {
+        rommCoverCache.setCacheDir(settingsManager.romCacheDir() + QStringLiteral("/covers"));
+        rommFileDownloader.setRomCacheDir(settingsManager.romCacheDir());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::retroarchPathChanged, [&]() {
+        launcher.setRetroarchPath(settingsManager.retroarchPath());
+    });
+    QObject::connect(&rommCoverCache, &RommCoverCache::coverReady, &rommModel, &RommModel::notifyCoverCached);
+
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("icon"), new IconImageProvider);
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
@@ -204,6 +246,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
+    engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("rommCoverCache"), &rommCoverCache);
+    engine.rootContext()->setContextProperty(QStringLiteral("rommFileDownloader"), &rommFileDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("singleInstance"), &singleInstance);
     engine.rootContext()->setContextProperty(QStringLiteral("gamepadHandler"), &gamepadHandler);
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
