@@ -170,6 +170,12 @@ void GamepadHandler::pollEvents()
             case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
                 Q_EMIT dpadRight();
                 break;
+            case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+                Q_EMIT l1Pressed();
+                break;
+            case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+                Q_EMIT r1Pressed();
+                break;
             }
             break;
         case SDL_CONTROLLERAXISMOTION:
@@ -186,6 +192,13 @@ void GamepadHandler::pollEvents()
             case SDL_CONTROLLER_AXIS_RIGHTY:
                 m_rightY = ev.caxis.value;
                 break;
+            case SDL_CONTROLLER_AXIS_TRIGGERLEFT: {
+                bool pressed = ev.caxis.value > 16000;
+                if (pressed && !m_l2WasPressed)
+                    Q_EMIT l2Pressed();
+                m_l2WasPressed = pressed;
+                break;
+            }
             }
             break;
         }

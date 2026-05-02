@@ -42,7 +42,7 @@ Kirigami.ApplicationWindow {
         windowSettings.savedHeight = height
 
     background: Rectangle {
-        color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
+        color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
     }
 
     globalDrawer: Kirigami.GlobalDrawer {
@@ -136,6 +136,7 @@ Kirigami.ApplicationWindow {
             }
             QQC2.ToolButton {
                 icon.name: "pin"
+                focusPolicy: Qt.NoFocus
                 checkable: true
                 checked: settingsManager.drawerPinned
                 flat: true
@@ -151,10 +152,6 @@ Kirigami.ApplicationWindow {
     pageStack.initialPage: Kirigami.Page {
         id: mainPage
         padding: 0
-
-        background: Rectangle {
-            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
-        }
 
         header: ColumnLayout {
             spacing: 0
@@ -174,6 +171,7 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ToolButton {
                         icon.name: "application-menu"
+                        focusPolicy: Qt.NoFocus
                         visible: globalDrawer.modal
                         onClicked: globalDrawer.open()
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
@@ -212,6 +210,7 @@ Kirigami.ApplicationWindow {
                         id: addBtn
                         text: i18n("Add &App/Game")
                         icon.name: "list-add"
+                        focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         visible: !root.bigPicture && root.activeTab === 0
                         onClicked: addMenu.popup(addBtn, 0, addBtn.height)
@@ -272,11 +271,13 @@ Kirigami.ApplicationWindow {
                                 rommModel.fetchRoms(plat.id, rommView.searchText);
                             }
                         }
+                        // id=0 means "All" — API treats it as no filter
                     }
 
                     QQC2.ToolButton {
                         property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
                         visible: !root.bigPicture && root.activeTab === 0
+                        focusPolicy: Qt.NoFocus
                         icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         enabled: gridView.currentIndex >= 0
@@ -321,31 +322,36 @@ Kirigami.ApplicationWindow {
                     text: i18n("Games")
                 }
                 QQC2.TabButton {
-                    text: i18n("ROMM")
+                    text: i18n("RomM")
                     enabled: settingsManager.rommServerUrl !== ""
                 }
             }
         }
 
         // Main content switcher
-        StackLayout {
+        Rectangle {
             anchors.fill: parent
-            currentIndex: root.activeTab
+            color: root.lightsOut ? root.loBase : "white"
 
-            AppGridView {
-                id: gridView
-                lightsOut: root.lightsOut
-                active: root.activeTab === 0
-            }
+            StackLayout {
+                anchors.fill: parent
+                currentIndex: root.activeTab
 
-            RommView {
-                id: rommView
-                lightsOut: root.lightsOut
-                viewType: gridView.viewType
-                scaleFactor: gridView.scaleFactor
-                showNames: gridView.showNames
+                AppGridView {
+                    id: gridView
+                    lightsOut: root.lightsOut
+                    active: root.activeTab === 0
+                }
+
+                RommView {
+                    id: rommView
+                    lightsOut: root.lightsOut
+                    viewType: gridView.viewType
+                    scaleFactor: gridView.scaleFactor
+                    showNames: gridView.showNames
+                }
             }
-        }  // StackLayout
+        }
 
         footer: QQC2.ToolBar {
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
@@ -365,17 +371,9 @@ Kirigami.ApplicationWindow {
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
                 }
-                QQC2.Button {
-                    flat: true
-                    text: i18n("Load More")
-                    visible: root.activeTab === 1 && rommView.hasMore && !rommModel.busy
-                    onClicked: {
-                        var nextPage = Math.ceil(rommModel.count / 500) + 1;
-                        rommModel.fetchRoms(rommView.currentPlatformId, rommView.searchText, nextPage);
-                    }
-                }
                 QQC2.ToolButton {
                     icon.name: "system-suspend-inhibited"
+                    focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: launcher.sleepInhibited
                     onClicked: launcher.toggleSleepInhibit()
@@ -385,6 +383,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolButton {
                     icon.name: "contrast"
+                    focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: launcher.hdrEnabled
                     enabled: launcher.hdrSupported
@@ -396,6 +395,7 @@ Kirigami.ApplicationWindow {
                 QQC2.ToolSeparator {}
                 QQC2.ToolButton {
                     icon.name: "view-list-icons"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "icon"
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
@@ -406,6 +406,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolButton {
                     icon.name: "view-preview"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "grid"
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
@@ -416,6 +417,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolButton {
                     icon.name: "image-x-generic"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "hero"
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
@@ -426,6 +428,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolButton {
                     icon.name: "tag"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.showNames
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
@@ -437,12 +440,14 @@ Kirigami.ApplicationWindow {
                 QQC2.ToolSeparator {}
                 QQC2.Button {
                     icon.name: "zoom-out"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     enabled: gridView.scaleFactor > 0.5
                     onClicked: gridView.scaleFactor = Math.max(0.5, gridView.scaleFactor - 0.25)
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
                 QQC2.Slider {
+                    focusPolicy: Qt.NoFocus
                     from: 0.5
                     to: 2.0
                     stepSize: 0.25
@@ -452,6 +457,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.Button {
                     icon.name: "zoom-in"
+                    focusPolicy: Qt.NoFocus
                     flat: true
                     enabled: gridView.scaleFactor < 2.0
                     onClicked: gridView.scaleFactor = Math.min(2.0, gridView.scaleFactor + 0.25)
@@ -660,6 +666,21 @@ Kirigami.ApplicationWindow {
 
         function onDpadRight() {
             gamepadHandler.sendKey(Qt.Key_Right);
+        }
+
+        function onL1Pressed() {
+            mainTabBar.currentIndex = Math.max(0, mainTabBar.currentIndex - 1);
+        }
+
+        function onR1Pressed() {
+            mainTabBar.currentIndex = Math.min(mainTabBar.count - 1, mainTabBar.currentIndex + 1);
+        }
+
+        function onL2Pressed() {
+            if (root.activeTab === 1 && rommPlatformCombo.visible) {
+                rommPlatformCombo.forceActiveFocus();
+                rommPlatformCombo.popup.open();
+            }
         }
     }
 

@@ -36,5 +36,5 @@ private:
 
     QString m_serverUrl;
     QString m_apiKey;
-    static constexpr int kPageSize = 500;
+    static constexpr int kPageSize = 50;
 };

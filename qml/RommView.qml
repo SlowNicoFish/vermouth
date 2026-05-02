@@ -13,6 +13,7 @@ Item {
     property bool showNames: true
 
     property var platforms: []
+    property var platformLogoMap: ({})
     property bool hasMore: false
     property int currentPlatformId: -1
     property string searchText: ""
@@ -31,13 +32,26 @@ Item {
     Connections {
         target: rommModel
         function onPlatformsFetched(p) {
-            root.platforms = p;
+            var logoMap = {};
+            for (var i = 0; i < p.length; i++) {
+                if (p[i].logoUrl)
+                    logoMap[p[i].slug] = p[i].logoUrl;
+            }
+            root.platformLogoMap = logoMap;
+            root.platforms = [
+                {
+                    id: 0,
+                    name: i18n("All")
+                }
+            ].concat(p);
         }
         function onRomsFetched(more) {
             root.hasMore = more;
+            if (more)
+                Qt.callLater(romGrid.checkLoadMore);
         }
         function onError(msg) {
-            showPassiveNotification(i18n("ROMM error: %1", msg), 6000);
+            showPassiveNotification(i18n("RomM error: %1", msg), 6000);
         }
     }
 
@@ -88,6 +102,11 @@ Item {
             focus: true
             model: rommModel
 
+            onActiveFocusChanged: {
+                if (!activeFocus)
+                    currentIndex = -1;
+            }
+
             cellWidth: root.viewType === "hero" ? 300 * root.scaleFactor : root.viewType === "grid" ? 155 * root.scaleFactor : 140 * root.scaleFactor
             cellHeight: {
                 if (root.viewType === "hero")
@@ -107,7 +126,7 @@ Item {
             Kirigami.PlaceholderMessage {
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
-                visible: !rommModel.busy && root.currentPlatformId < 0 && root.platforms.length > 0
+                visible: !rommModel.busy && root.currentPlatformId === -1 && root.platforms.length > 0
                 text: i18n("Select a platform")
                 icon.name: "folder-games"
             }
@@ -115,11 +134,24 @@ Item {
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
                 visible: !rommModel.busy && root.platforms.length === 0
-                text: settingsManager.rommServerUrl !== "" ? i18n("No platforms") : i18n("Configure ROMM\nin Settings")
+                text: settingsManager.rommServerUrl !== "" ? i18n("No platforms") : i18n("Configure RomM\nin Settings")
                 icon.name: settingsManager.rommServerUrl !== "" ? "folder-games" : "configure"
             }
 
-            Keys.onReturnPressed: root.launchOrDownload(currentIndex)
+            Keys.onReturnPressed: {
+                if (romGrid.activeFocus)
+                    root.launchOrDownload(currentIndex);
+            }
+
+            function checkLoadMore() {
+                if (root.hasMore && !rommModel.busy && (contentHeight <= height || contentY + height >= contentHeight - cellHeight * 2)) {
+                    var nextPage = Math.floor(rommModel.count / 50) + 1;
+                    rommModel.fetchRoms(root.currentPlatformId, root.searchText, nextPage);
+                }
+            }
+
+            onContentYChanged: checkLoadMore()
+            onHeightChanged: checkLoadMore()
 
             delegate: Item {
                 id: delegateRoot
@@ -138,6 +170,7 @@ Item {
 
                 property bool isSelected: romGrid.currentIndex === delegateRoot.index
                 property string artSource: localCover !== "" ? "file://" + localCover : (coverUrl !== "" ? coverUrl : "")
+                property string platformLogo: root.platformLogoMap[delegateRoot.platformSlug] ?? ""
 
                 Rectangle {
                     id: cardBg
@@ -202,6 +235,24 @@ Item {
                                 color: Kirigami.Theme.highlightColor
                                 visible: delegateRoot.artSource === ""
                             }
+                            Rectangle {
+                                visible: delegateRoot.platformLogo !== ""
+                                anchors.top: parent.top
+                                anchors.right: parent.right
+                                width: 18 * root.scaleFactor
+                                height: 18 * root.scaleFactor
+                                radius: 3
+                                color: Qt.rgba(0, 0, 0, 0.55)
+                                Image {
+                                    anchors.centerIn: parent
+                                    width: parent.width - 2
+                                    height: parent.height - 2
+                                    source: delegateRoot.platformLogo
+                                    fillMode: Image.PreserveAspectFit
+                                    asynchronous: true
+                                    sourceSize: Qt.size(32, 32)
+                                }
+                            }
                         }
 
                         Item {
@@ -250,6 +301,28 @@ Item {
                                 font.pixelSize: 28 * root.scaleFactor
                                 font.bold: true
                                 color: Kirigami.Theme.highlightColor
+                            }
+                        }
+
+                        // ── Platform logo badge ──────────────────────────────
+                        Rectangle {
+                            visible: delegateRoot.platformLogo !== ""
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.margins: Kirigami.Units.smallSpacing
+                            width: 28 * root.scaleFactor
+                            height: 28 * root.scaleFactor
+                            radius: 4
+                            color: Qt.rgba(0, 0, 0, 0.55)
+
+                            Image {
+                                anchors.centerIn: parent
+                                width: parent.width - 4
+                                height: parent.height - 4
+                                source: delegateRoot.platformLogo
+                                fillMode: Image.PreserveAspectFit
+                                asynchronous: true
+                                sourceSize: Qt.size(48, 48)
                             }
                         }
 
@@ -369,6 +442,15 @@ Item {
                         }
                     }
                     QQC2.MenuItem {
+                        text: i18n("Launch with Log")
+                        icon.name: "text-x-log"
+                        onTriggered: {
+                            launchAnim.start();
+                            flashAnim.start();
+                            root.launchOrDownload(delegateRoot.index, true);
+                        }
+                    }
+                    QQC2.MenuItem {
                         readonly property string _firstCached: rommFileDownloader.cachedRomPath(delegateRoot.romId, delegateRoot.fileName)
                         text: _firstCached !== "" ? i18n("ROM cached locally") : i18n("Download ROM (%1 MB)").arg((delegateRoot.fileSizeBytes / (1024 * 1024)).toFixed(1))
                         icon.name: "download"
@@ -392,6 +474,11 @@ Item {
                             corePickerDialog.launchAfterPick = false;
                             corePickerDialog.open();
                         }
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Open log folder")
+                        icon.name: "folder-open"
+                        onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
                     }
                     QQC2.MenuItem {
                         text: i18n("Copy Launch Command")
@@ -560,9 +647,10 @@ Item {
         }
     }
 
-    function launchOrDownload(index) {
+    function launchOrDownload(index, enableLogging) {
         if (index < 0)
             return;
+        var logging = enableLogging === true;
         var rom = rommModel.getRom(index);
         var files = rom.fileNames;
         if (!files || files.length === 0)
@@ -572,17 +660,16 @@ Item {
             var cached = rommFileDownloader.cachedRomPath(rom.romId, files[0]);
             if (cached !== "") {
                 rom.localRomPath = cached;
-                launcher.launchRom(rom);
+                launcher.launchRom(rom, logging);
             } else {
                 startDownload(rom, files[0]);
             }
         } else {
-            // Check if any file is already cached
             for (var i = 0; i < files.length; i++) {
                 var c = rommFileDownloader.cachedRomPath(rom.romId, files[i]);
                 if (c !== "") {
                     rom.localRomPath = c;
-                    launcher.launchRom(rom);
+                    launcher.launchRom(rom, logging);
                     return;
                 }
             }

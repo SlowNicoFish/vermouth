@@ -26,7 +26,7 @@ static const QHash<QString, QStringList> &platformCoreMap()
         {QStringLiteral("gbc"), {QStringLiteral("gambatte_libretro.so"), QStringLiteral("sameboy_libretro.so")}},
         {QStringLiteral("gba"), {QStringLiteral("mgba_libretro.so"), QStringLiteral("vba_next_libretro.so")}},
         {QStringLiteral("snes"), {QStringLiteral("snes9x_libretro.so"), QStringLiteral("bsnes_libretro.so")}},
-        {QStringLiteral("nes"), {QStringLiteral("nestopia_libretro.so"), QStringLiteral("fceumm_libretro.so")}},
+        {QStringLiteral("nes"), {QStringLiteral("nestopia_libretro.so"), QStringLiteral("fceumm_libretro.so"), QStringLiteral("quicknes_libretro.so")}},
         {QStringLiteral("n64"), {QStringLiteral("mupen64plus_next_libretro.so"), QStringLiteral("parallel_n64_libretro.so")}},
         {QStringLiteral("nds"), {QStringLiteral("desmume_libretro.so"), QStringLiteral("melonds_libretro.so")}},
         {QStringLiteral("3ds"), {QStringLiteral("citra_libretro.so")}},
@@ -254,7 +254,7 @@ QString Launcher::detectRetroarchPath() const
     return {};
 }
 
-void Launcher::launchRom(const QVariantMap &rom)
+void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
 {
     QString romPath = rom[QStringLiteral("localRomPath")].toString();
     QString name = rom[QStringLiteral("name")].toString();
@@ -287,17 +287,19 @@ void Launcher::launchRom(const QVariantMap &rom)
     }
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    QStringList coreArgs = {QStringLiteral("-L"), corePath, QStringLiteral("--fullscreen")};
+    QStringList baseFlags = {QStringLiteral("-L"), corePath, QStringLiteral("--fullscreen")};
+    if (enableLogging)
+        baseFlags << QStringLiteral("-v");
     if (m_retroarchBinary == QStringLiteral("__flatpak__"))
         launch(QStringLiteral("flatpak"),
-               {QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch"), QStringLiteral("-L"), corePath, QStringLiteral("--fullscreen")},
+               QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
                romPath,
                env,
                {},
-               false,
+               enableLogging,
                name);
     else
-        launch(m_retroarchBinary, coreArgs, romPath, env, {}, false, name);
+        launch(m_retroarchBinary, baseFlags, romPath, env, {}, enableLogging, name);
 }
 
 void Launcher::setGlobalEnvVars(const QStringList &vars)

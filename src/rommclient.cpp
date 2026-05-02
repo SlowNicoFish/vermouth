@@ -96,6 +96,7 @@ void RommClient::fetchPlatforms()
             p[QStringLiteral("name")] = obj[QStringLiteral("name")].toString();
             p[QStringLiteral("slug")] = obj[QStringLiteral("slug")].toString();
             p[QStringLiteral("romCount")] = obj[QStringLiteral("rom_count")].toInt();
+            p[QStringLiteral("logoUrl")] = obj[QStringLiteral("url_logo")].toString();
             result << p;
         }
         setStatusText({});

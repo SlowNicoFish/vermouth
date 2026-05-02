@@ -28,6 +28,9 @@ Q_SIGNALS:
     void dpadDown();
     void dpadLeft();
     void dpadRight();
+    void l1Pressed();
+    void r1Pressed();
+    void l2Pressed();
     void connectedChanged();
 
 private:
@@ -38,6 +41,7 @@ private:
     int m_leftX = 0, m_leftY = 0;
     int m_rightX = 0, m_rightY = 0;
     int m_axisDirLast = 0;
+    bool m_l2WasPressed = false;
     static constexpr int kDeadzone = 8000;
     void pollEvents();
     int axisDirection() const;

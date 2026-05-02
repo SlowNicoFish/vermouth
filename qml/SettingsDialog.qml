@@ -287,12 +287,12 @@ Kirigami.PromptDialog {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("ROMM")
+                Kirigami.FormData.label: i18n("RomM")
             }
 
             QQC2.Label {
                 Kirigami.FormData.label: ""
-                text: i18n("ROMM is a self-hosted ROM manager. Set your server URL and API key to browse and launch ROMs via RetroArch.")
+                text: i18n("RomM is a self-hosted ROM manager. Set your server URL and API key to browse and launch ROMs via RetroArch.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
@@ -315,7 +315,7 @@ Kirigami.PromptDialog {
                     id: rommApiKeyField
                     Layout.fillWidth: true
                     echoMode: TextInput.PasswordEchoOnEdit
-                    placeholderText: i18n("Your ROMM API key")
+                    placeholderText: i18n("Your RomM API key")
                 }
             }
 

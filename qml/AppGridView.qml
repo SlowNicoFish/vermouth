@@ -34,6 +34,11 @@ GridView {
     keyNavigationEnabled: true
     property bool active: true
 
+    onActiveFocusChanged: {
+        if (!activeFocus)
+            currentIndex = -1;
+    }
+
     TapHandler {
         onTapped: {
             gridView.currentIndex = -1;
