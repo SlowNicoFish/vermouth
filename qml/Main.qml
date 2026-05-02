@@ -314,6 +314,19 @@ Kirigami.ApplicationWindow {
                 readonly property int enabledTabCount: tabs.filter(t => t.enabled).length
                 visible: enabledTabCount > 1
 
+                property var tabs: [
+                    {
+                        name: i18n("Games"),
+                        enabled: true
+                    },
+                    {
+                        name: i18n("RomM"),
+                        enabled: settingsManager.rommServerUrl !== ""
+                    }
+                ]
+                readonly property int enabledTabCount: tabs.filter(t => t.enabled).length
+                visible: enabledTabCount > 1
+
                 background: Rectangle {
                     color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
                 }
