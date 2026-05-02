@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include "platformcores.h"
 #include <QClipboard>
 #include <QCursor>
 #include <QDBusConnection>
@@ -18,62 +19,6 @@
 #include <QScreen>
 #include <QStandardPaths>
 #include <unistd.h>
-
-static const QHash<QString, QStringList> &platformCoreMap()
-{
-    static const QHash<QString, QStringList> map = {
-        {QStringLiteral("gb"), {QStringLiteral("gambatte_libretro.so"), QStringLiteral("sameboy_libretro.so")}},
-        {QStringLiteral("gbc"), {QStringLiteral("gambatte_libretro.so"), QStringLiteral("sameboy_libretro.so")}},
-        {QStringLiteral("gba"), {QStringLiteral("mgba_libretro.so"), QStringLiteral("vba_next_libretro.so")}},
-        {QStringLiteral("snes"), {QStringLiteral("snes9x_libretro.so"), QStringLiteral("bsnes_libretro.so")}},
-        {QStringLiteral("nes"), {QStringLiteral("nestopia_libretro.so"), QStringLiteral("fceumm_libretro.so"), QStringLiteral("quicknes_libretro.so")}},
-        {QStringLiteral("n64"), {QStringLiteral("mupen64plus_next_libretro.so"), QStringLiteral("parallel_n64_libretro.so")}},
-        {QStringLiteral("nds"), {QStringLiteral("desmume_libretro.so"), QStringLiteral("melonds_libretro.so")}},
-        {QStringLiteral("3ds"), {QStringLiteral("citra_libretro.so")}},
-        {QStringLiteral("ps"),
-         {QStringLiteral("pcsx_rearmed_libretro.so"), QStringLiteral("beetle_psx_hw_libretro.so"), QStringLiteral("mednafen_psx_hw_libretro.so")}},
-        {QStringLiteral("psx"),
-         {QStringLiteral("pcsx_rearmed_libretro.so"), QStringLiteral("beetle_psx_hw_libretro.so"), QStringLiteral("mednafen_psx_hw_libretro.so")}},
-        {QStringLiteral("ps2"), {QStringLiteral("pcsx2_libretro.so")}},
-        {QStringLiteral("psp"), {QStringLiteral("ppsspp_libretro.so")}},
-        {QStringLiteral("mame"), {QStringLiteral("mame_libretro.so"), QStringLiteral("mame2016_libretro.so"), QStringLiteral("fbneo_libretro.so")}},
-        {QStringLiteral("arcade"),
-         {
-             QStringLiteral("fbneo_libretro.so"),
-             QStringLiteral("mame_libretro.so"),
-             QStringLiteral("mame2016_libretro.so"),
-             QStringLiteral("fbalpha2012_libretro.so"),
-             QStringLiteral("mame2016_libretro.so"),
-             QStringLiteral("fbalpha2012_cps2_libretro.so"),
-             QStringLiteral("fbalpha2012_cps3_libretro.so"),
-             QStringLiteral("fbalpha2012_neogeo_libretro.so"),
-         }},
-        {QStringLiteral("megadrive"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
-        {QStringLiteral("genesis"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
-        {QStringLiteral("sega-saturn"), {QStringLiteral("mednafen_saturn_libretro.so"), QStringLiteral("yabause_libretro.so")}},
-        {QStringLiteral("mastersystem"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
-        {QStringLiteral("gamegear"), {QStringLiteral("genesis_plus_gx_libretro.so")}},
-        {QStringLiteral("dreamcast"), {QStringLiteral("flycast_libretro.so"), QStringLiteral("redream_libretro.so")}},
-        {QStringLiteral("atari2600"), {QStringLiteral("stella2014_libretro.so"), QStringLiteral("stella_libretro.so")}},
-        {QStringLiteral("lynx"), {QStringLiteral("handy_libretro.so"), QStringLiteral("mednafen_lynx_libretro.so")}},
-        {QStringLiteral("ngp"), {QStringLiteral("mednafen_ngp_libretro.so")}},
-        {QStringLiteral("wswan"), {QStringLiteral("mednafen_wswan_libretro.so")}},
-    };
-    return map;
-}
-
-static QStringList retroarchCoreDirs(const QString &retroarchBinary)
-{
-    QString home = QDir::homePath();
-    QStringList dirs;
-    if (retroarchBinary == QStringLiteral("__flatpak__"))
-        dirs << home + QStringLiteral("/.var/app/org.libretro.RetroArch/config/retroarch/cores");
-    dirs << home + QStringLiteral("/.config/retroarch/cores");
-    dirs << QStringLiteral("/usr/lib/x86_64-linux-gnu/libretro");
-    dirs << QStringLiteral("/usr/lib/libretro");
-    dirs << QStringLiteral("/usr/share/libretro/cores");
-    return dirs;
-}
 
 static bool isKde()
 {
@@ -150,7 +95,7 @@ QString Launcher::resolveRetroarchBinary() const
     check.start(QStringLiteral("flatpak"), {QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
     check.waitForFinished(3000);
     if (check.exitCode() == 0)
-        return QStringLiteral("__flatpak__");
+        return QStringLiteral("flatpak:org.libretro.RetroArch");
 
     return {};
 }
@@ -170,7 +115,7 @@ void Launcher::cacheRetroarchBinary()
     auto *check = new QProcess(this);
     connect(check, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, check](int exitCode) {
         if (exitCode == 0)
-            m_retroarchBinary = QStringLiteral("__flatpak__");
+            m_retroarchBinary = QStringLiteral("flatpak:org.libretro.RetroArch");
         check->deleteLater();
     });
     check->start(QStringLiteral("flatpak"), {QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
@@ -229,7 +174,7 @@ QString Launcher::buildRomLaunchCommand(const QVariantMap &rom) const
     if (romPath.isEmpty())
         romPath = QStringLiteral("<rom_path>");
 
-    if (m_retroarchBinary == QStringLiteral("__flatpak__"))
+    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch"))
         return QStringLiteral("flatpak run org.libretro.RetroArch -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
     return shellQuoted(m_retroarchBinary) + QStringLiteral(" -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
 }
@@ -290,7 +235,7 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
     QStringList baseFlags = {QStringLiteral("-L"), corePath, QStringLiteral("--fullscreen")};
     if (enableLogging)
         baseFlags << QStringLiteral("-v");
-    if (m_retroarchBinary == QStringLiteral("__flatpak__"))
+    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch"))
         launch(QStringLiteral("flatpak"),
                QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
                romPath,

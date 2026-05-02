@@ -55,6 +55,7 @@ qt_add_executable(vermouth
     src/rommcovercache.cpp
     src/rommmodel.cpp
     src/rommfiledownloader.cpp
+    src/platformcores.cpp
     resources.qrc
 )
 
