@@ -539,7 +539,12 @@ Kirigami.ApplicationWindow {
 
     function updateFooterStatus() {
         if (root.activeTab === 1) {
-            footerStatusText.text = rommModel.count > 0 ? i18n("%1 ROMs", rommModel.count) : "";
+            if (rommModel.statusText !== "")
+                footerStatusText.text = rommModel.statusText;
+            else if (rommModel.count > 0)
+                footerStatusText.text = i18n("%1 ROMs", rommModel.count);
+            else
+                footerStatusText.text = "";
             return;
         }
         if (gridView.currentIndex < 0) {
@@ -698,6 +703,10 @@ Kirigami.ApplicationWindow {
     Connections {
         target: rommModel
         function onCountChanged() {
+            if (root.activeTab === 1)
+                root.updateFooterStatus();
+        }
+        function onStatusTextChanged() {
             if (root.activeTab === 1)
                 root.updateFooterStatus();
         }

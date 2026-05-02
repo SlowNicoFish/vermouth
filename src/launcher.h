@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStringList>
+#include <QVariantMap>
 
 class Launcher : public QObject
 {
@@ -16,6 +17,7 @@ public:
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
     void setRetroarchPath(const QString &path);
+    void setRommCoreMap(const QVariantMap &map);
 
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
@@ -48,6 +50,8 @@ public:
 Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
+    void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
+    void coreAutoDetected(const QString &platformSlug, const QString &corePath);
     void prefixNotReady(const QString &name);
     void processFinished(int exitCode);
     void runningExePathsChanged();
@@ -67,9 +71,13 @@ private:
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
     QString resolveRetroarchBinary() const;
+    void cacheRetroarchBinary();
+    QString autoDetectCore(const QString &platformSlug) const;
     QString m_logDir;
     QString m_umuPath;
     QString m_retroarchPath;
+    QString m_retroarchBinary;
+    QVariantMap m_rommCoreMap;
     QStringList m_globalEnvVars;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;

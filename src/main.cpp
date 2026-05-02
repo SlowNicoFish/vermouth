@@ -215,7 +215,11 @@ int main(int argc, char *argv[])
     rommFileDownloader.setRomCacheDir(settingsManager.romCacheDir());
 
     launcher.setRetroarchPath(settingsManager.retroarchPath());
+    launcher.setRommCoreMap(settingsManager.rommCoreMap());
 
+    QObject::connect(&settingsManager, &SettingsManager::rommCoreMapChanged, [&]() {
+        launcher.setRommCoreMap(settingsManager.rommCoreMap());
+    });
     QObject::connect(&settingsManager, &SettingsManager::rommServerUrlChanged, [&]() {
         rommClient.setServerUrl(settingsManager.rommServerUrl());
         rommFileDownloader.setServerUrl(settingsManager.rommServerUrl());
@@ -231,6 +235,9 @@ int main(int argc, char *argv[])
     });
     QObject::connect(&settingsManager, &SettingsManager::retroarchPathChanged, [&]() {
         launcher.setRetroarchPath(settingsManager.retroarchPath());
+    });
+    QObject::connect(&launcher, &Launcher::coreAutoDetected, [&](const QString &slug, const QString &path) {
+        settingsManager.setRommCore(slug, path);
     });
     QObject::connect(&rommCoverCache, &RommCoverCache::coverReady, &rommModel, &RommModel::notifyCoverCached);
 

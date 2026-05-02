@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
@@ -41,6 +42,15 @@ Item {
     }
 
     Connections {
+        target: launcher
+        function onRomCoreMissing(platformSlug, rom) {
+            corePickerDialog.platformSlug = platformSlug;
+            corePickerDialog.pendingRom = rom;
+            corePickerDialog.open();
+        }
+    }
+
+    Connections {
         target: rommFileDownloader
         function onRomDownloaded(romId, localPath) {
             downloadProgressDialog.close();
@@ -66,32 +76,6 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
-
-        // Status / busy row
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.topMargin: Kirigami.Units.smallSpacing
-            Layout.rightMargin: Kirigami.Units.smallSpacing
-            Layout.leftMargin: Kirigami.Units.smallSpacing
-            visible: rommModel.busy || rommModel.statusText !== ""
-
-            QQC2.Label {
-                text: rommModel.statusText
-                visible: rommModel.statusText !== ""
-                opacity: 0.7
-                font.italic: true
-                color: root.lightsOut ? "#ffffff" : Kirigami.Theme.textColor
-            }
-            Item {
-                Layout.fillWidth: true
-            }
-            QQC2.BusyIndicator {
-                visible: rommModel.busy
-                running: visible
-                implicitHeight: Kirigami.Units.iconSizes.small
-                implicitWidth: implicitHeight
-            }
-        }
 
         // ROM GridView
         GridView {
@@ -425,6 +409,45 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
             }
         }
+    }
+
+    // ── RetroArch core picker dialog ────────────────────────────────────────
+    Kirigami.PromptDialog {
+        id: corePickerDialog
+        property string platformSlug: ""
+        property var pendingRom: null
+
+        title: i18n("Select RetroArch core")
+        subtitle: i18n("No core configured for platform \"%1\". Select the .so core file to use.", platformSlug)
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+
+        onAccepted: {
+            var path = corePathField.text.trim();
+            if (path !== "" && pendingRom !== null) {
+                settingsManager.setRommCore(platformSlug, path);
+                launcher.launchRom(pendingRom);
+            }
+        }
+        onClosed: corePathField.text = ""
+
+        RowLayout {
+            QQC2.TextField {
+                id: corePathField
+                Layout.fillWidth: true
+                placeholderText: i18n("Path to RetroArch core (.so)")
+            }
+            QQC2.Button {
+                icon.name: "document-open"
+                onClicked: coreFilePicker.open()
+            }
+        }
+    }
+
+    FileDialog {
+        id: coreFilePicker
+        title: i18n("Select RetroArch core")
+        nameFilters: [i18n("RetroArch cores (*.so)"), i18n("All files (*)")]
+        onAccepted: corePathField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
     }
 
     // ── Multi-file picker dialog ─────────────────────────────────────────────

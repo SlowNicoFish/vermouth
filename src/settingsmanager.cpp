@@ -1,4 +1,6 @@
 #include "settingsmanager.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QStandardPaths>
 
 SettingsManager::SettingsManager(QObject *parent)
@@ -255,4 +257,28 @@ void SettingsManager::setRomCacheDir(const QString &dir)
         return;
     m_settings.setValue(QStringLiteral("romCacheDir"), dir);
     Q_EMIT romCacheDirChanged();
+}
+
+QVariantMap SettingsManager::rommCoreMap() const
+{
+    QString json = m_settings.value(QStringLiteral("rommCoreMap")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+QString SettingsManager::rommCore(const QString &platformSlug) const
+{
+    return rommCoreMap().value(platformSlug).toString();
+}
+
+void SettingsManager::setRommCore(const QString &platformSlug, const QString &corePath)
+{
+    QVariantMap map = rommCoreMap();
+    if (corePath.isEmpty())
+        map.remove(platformSlug);
+    else
+        map[platformSlug] = corePath;
+    m_settings.setValue(QStringLiteral("rommCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT rommCoreMapChanged();
 }
