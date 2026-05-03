@@ -32,6 +32,12 @@ GridView {
     clip: true
     focus: true
     keyNavigationEnabled: true
+    property bool active: true
+
+    onActiveFocusChanged: {
+        if (!activeFocus)
+            currentIndex = -1;
+    }
 
     TapHandler {
         onTapped: {
@@ -41,7 +47,7 @@ GridView {
 
     Shortcut {
         sequence: "Return"
-        enabled: gridView.currentIndex >= 0
+        enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
             launcher.launchEntry(app);
@@ -49,7 +55,7 @@ GridView {
     }
     Shortcut {
         sequence: "Delete"
-        enabled: gridView.currentIndex >= 0
+        enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
             confirmDeleteAppDialog.runtimeType = app.runtimeType;
@@ -59,7 +65,7 @@ GridView {
     }
     Shortcut {
         sequence: "Shift+Delete"
-        enabled: gridView.currentIndex >= 0 && appModel.getApp(gridView.currentIndex).runtimeType !== "native"
+        enabled: gridView.active && gridView.currentIndex >= 0 && appModel.getApp(gridView.currentIndex).runtimeType !== "native"
         onActivated: {
             confirmDeleteDialog.payload = gridView.currentIndex;
             confirmDeleteDialog.open();
@@ -96,6 +102,14 @@ GridView {
             radius: Kirigami.Units.cornerRadius
             color: "transparent"
             layer.enabled: gridView.viewType !== "icon"
+            scale: delegateRoot.isSelected ? 1.06 : 1.0
+            z: delegateRoot.isSelected ? 2 : 0
+            Behavior on scale {
+                NumberAnimation {
+                    duration: 120
+                    easing.type: Easing.OutCubic
+                }
+            }
 
             SequentialAnimation {
                 id: launchAnim
@@ -277,7 +291,7 @@ GridView {
                 radius: Kirigami.Units.cornerRadius
                 color: "transparent"
                 border.color: delegateRoot.isSelected ? Kirigami.Theme.highlightColor : mouseArea.containsMouse ? Qt.darker(Kirigami.Theme.highlightColor, 1.5) : "transparent"
-                border.width: delegateRoot.isSelected ? 2 : mouseArea.containsMouse ? 1 : 0
+                border.width: delegateRoot.isSelected ? 3 : mouseArea.containsMouse ? 1 : 0
                 z: 5
 
                 Behavior on border.color {
