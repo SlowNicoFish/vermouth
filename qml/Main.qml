@@ -25,6 +25,9 @@ Kirigami.ApplicationWindow {
     readonly property color loText: "#ffffff"
     readonly property color loSubText: Qt.rgba(1, 1, 1, 0.6)
     readonly property color loAltBg: Qt.darker(loBase, 1.3)
+    Kirigami.Theme.colorSet: lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+    Kirigami.Theme.inherit: false
+
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
     property int activeTab: 0
@@ -53,11 +56,8 @@ Kirigami.ApplicationWindow {
         id: globalDrawer
         modal: !settingsManager.drawerPinned
         focus: modal
-        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
         handle.visible: false
-        background: Rectangle {
-            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
-        }
+        Kirigami.Theme.inherit: true
 
         actions: [
             Kirigami.Action {
@@ -162,13 +162,21 @@ Kirigami.ApplicationWindow {
 
             QQC2.ToolBar {
                 Layout.fillWidth: true
-                Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                 topPadding: Kirigami.Units.largeSpacing
                 bottomPadding: Kirigami.Units.largeSpacing
-
                 background: Rectangle {
                     color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
                 }
+                // AppImage hack
+                palette.highlightedText: root.lightsOut ? root.loText : undefined
+                palette.button: root.lightsOut ? root.loMid : undefined
+                palette.buttonText: root.lightsOut ? root.loText : undefined
+                palette.window: root.lightsOut ? root.loBase : undefined
+                palette.windowText: root.lightsOut ? root.loText : undefined
+                palette.base: root.lightsOut ? root.loBase : undefined
+                palette.text: root.lightsOut ? root.loText : undefined
+                palette.placeholderText: root.lightsOut ? root.loSubText : undefined
+                palette.brightText: root.lightsOut ? root.loText : undefined
 
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.smallSpacing
@@ -197,12 +205,7 @@ Kirigami.ApplicationWindow {
                             else
                                 rommView.applySearch(text);
                         }
-                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                        background: Rectangle {
-                            color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
-                            border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
-                            radius: 4
-                        }
+                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                     }
 
                     Item {
@@ -212,7 +215,6 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ToolButton {
                         id: addBtn
-                        text: i18n("Add &App/Game")
                         icon.name: "list-add"
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
@@ -241,21 +243,7 @@ Kirigami.ApplicationWindow {
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
                         displayText: count > 0 ? currentText : i18n("Select platform…")
-
-                        contentItem: Text {
-                            leftPadding: Kirigami.Units.smallSpacing
-                            rightPadding: rommPlatformCombo.indicator.width + rommPlatformCombo.spacing
-                            text: rommPlatformCombo.displayText
-                            font: rommPlatformCombo.font
-                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                            verticalAlignment: Text.AlignVCenter
-                            elide: Text.ElideRight
-                        }
-                        background: Rectangle {
-                            color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
-                            border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
-                            radius: 4
-                        }
+                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
 
                         onModelChanged: {
                             var platforms = rommView.platforms;
@@ -275,8 +263,6 @@ Kirigami.ApplicationWindow {
                                 rommModel.fetchRoms(plat.id, rommView.searchText);
                             }
                         }
-
-                        // id=0 means "All" — API treats it as no filter
                     }
 
                     QQC2.ToolButton {
@@ -304,6 +290,16 @@ Kirigami.ApplicationWindow {
                 currentIndex: root.activeTab
                 Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                 Kirigami.Theme.inherit: false
+                // AppImage hack
+                palette.highlightedText: root.lightsOut ? root.loText : undefined
+                palette.button: root.lightsOut ? root.loMid : undefined
+                palette.buttonText: root.lightsOut ? root.loText : undefined
+                palette.window: root.lightsOut ? root.loBase : undefined
+                palette.windowText: root.lightsOut ? root.loText : undefined
+                palette.base: root.lightsOut ? root.loBase : undefined
+                palette.text: root.lightsOut ? root.loText : undefined
+                palette.placeholderText: root.lightsOut ? root.loSubText : undefined
+                palette.brightText: root.lightsOut ? root.loText : undefined
 
                 property var tabs: [
                     {
@@ -375,20 +371,29 @@ Kirigami.ApplicationWindow {
         }
 
         footer: QQC2.ToolBar {
-            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
             position: QQC2.ToolBar.Footer
             topPadding: Kirigami.Units.largeSpacing
             bottomPadding: Kirigami.Units.largeSpacing
-
+            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+            Kirigami.Theme.inherit: false
             background: Rectangle {
                 color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
             }
+            // AppImage hack
+            palette.highlightedText: root.lightsOut ? root.loText : undefined
+            palette.button: root.lightsOut ? root.loMid : undefined
+            palette.buttonText: root.lightsOut ? root.loText : undefined
+            palette.window: root.lightsOut ? root.loBase : undefined
+            palette.windowText: root.lightsOut ? root.loText : undefined
+            palette.base: root.lightsOut ? root.loBase : undefined
+            palette.text: root.lightsOut ? root.loText : undefined
+            palette.placeholderText: root.lightsOut ? root.loSubText : undefined
+            palette.brightText: root.lightsOut ? root.loText : undefined
 
             contentItem: RowLayout {
                 QQC2.Label {
                     id: footerStatusText
                     text: ""
-                    color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
                 }
@@ -398,6 +403,8 @@ Kirigami.ApplicationWindow {
                     checkable: true
                     checked: launcher.sleepInhibited
                     onClicked: launcher.toggleSleepInhibit()
+                    // Unfortunately, appimage won't respect the color scheme so I have to improvise:
+                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -409,6 +416,7 @@ Kirigami.ApplicationWindow {
                     checked: launcher.hdrEnabled
                     enabled: launcher.hdrSupported
                     onClicked: launcher.toggleHdr()
+                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
