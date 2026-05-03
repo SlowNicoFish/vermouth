@@ -310,31 +310,55 @@ build_flatpak() {
 }
 
 # --- AppImage ---
+APPIMAGE_BUILDER_IMAGE="vermouth-appimage-builder:latest"
+APPIMAGE_TOOL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/vermouth-appimage-tools"
+
+ensure_appimage_builder() {
+    if "$CONTAINER_RT" image exists "$APPIMAGE_BUILDER_IMAGE" 2>/dev/null; then
+        return 0
+    fi
+    echo "  Building cached builder image (one-time)…"
+    "$CONTAINER_RT" build --quiet -t "$APPIMAGE_BUILDER_IMAGE" -f - <<'DOCKERFILE'
+FROM ubuntu:25.10
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq && apt-get install -y -qq \
+    build-essential cmake extra-cmake-modules file wget fuse3 \
+    qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools qmake6 \
+    libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev \
+    qml6-module-org-kde-kirigami qml6-module-org-kde-desktop \
+    qml6-module-org-kde-iconthemes \
+    qt6-wayland libsdl2-dev qml-module-org-kde-qqc2desktopstyle qt6-xdgdesktopportal-platformtheme \
+    libqt6waylandclient6 \
+    && rm -rf /var/lib/apt/lists/*
+DOCKERFILE
+}
+
 build_appimage() {
     echo -e "\n${BOLD}=== AppImage ===${RESET}"
-    echo "Image: ubuntu:25.10"
 
     if ! "$CONTAINER_RT" pull --quiet "ubuntu:25.10" 2>/dev/null; then
         skip "AppImage (could not pull image)"
         return
     fi
 
+    ensure_appimage_builder
+
+    mkdir -p "$APPIMAGE_TOOL_CACHE"
+
     local log rc
     log=$("$CONTAINER_RT" run --rm \
-        -e DEBIAN_FRONTEND=noninteractive \
         -v "$PROJECT_DIR":/src:ro \
         -v "$OUTPUT_DIR":/out \
-        ubuntu:25.10 \
+        -v "$APPIMAGE_TOOL_CACHE":/toolcache:z \
+        "$APPIMAGE_BUILDER_IMAGE" \
         bash -c "
             set -euo pipefail
-            apt-get update -qq
-            apt-get install -y -qq build-essential cmake extra-cmake-modules file wget fuse3 \
-                qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools qmake6 \
-                libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev \
-                qml6-module-org-kde-kirigami qml6-module-org-kde-desktop \
-                qml6-module-org-kde-iconthemes \
-                qt6-wayland libsdl2-dev qml-module-org-kde-qqc2desktopstyle qt6-xdgdesktopportal-platformtheme \
-                libqt6waylandclient6
+
+            # Download linuxdeploy tools only if not already cached
+            [ -f /toolcache/linuxdeploy ] || \
+                wget -q -O /toolcache/linuxdeploy 'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
+            [ -f /toolcache/linuxdeploy-plugin-qt ] || \
+                wget -q -O /toolcache/linuxdeploy-plugin-qt 'https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage'
 
             cp -r /src /build
             cd /build
@@ -344,8 +368,7 @@ build_appimage() {
             cmake --build build --parallel \$(nproc)
             DESTDIR=AppDir cmake --install build
 
-            wget -q -O linuxdeploy 'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage'
-            wget -q -O linuxdeploy-plugin-qt 'https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage'
+            cp /toolcache/linuxdeploy /toolcache/linuxdeploy-plugin-qt .
             chmod +x linuxdeploy linuxdeploy-plugin-qt
 
             export QML_SOURCES_PATHS=/build/qml
@@ -367,6 +390,7 @@ build_appimage() {
         pass "AppImage — package written to dist/"
     else
         fail "AppImage build failed"
+        echo "$log" | tail -20 | sed 's/^/    /'
     fi
 }
 
@@ -379,14 +403,19 @@ case "$TARGETS" in
         build_flatpak
         build_appimage
         ;;
-    fedora)           build_rpm_fedora ;;
-    opensuse)         build_rpm_opensuse ;;
-    deb)              build_deb ;;
-    arch)             build_arch ;;
-    flatpak)          build_flatpak ;;
-    appimage)         build_appimage ;;
+    fedora)                  build_rpm_fedora ;;
+    opensuse)                build_rpm_opensuse ;;
+    deb)                     build_deb ;;
+    arch)                    build_arch ;;
+    flatpak)                 build_flatpak ;;
+    appimage)                build_appimage ;;
+    appimage-rebuild-cache)
+        "$CONTAINER_RT" rmi "$APPIMAGE_BUILDER_IMAGE" 2>/dev/null || true
+        rm -f "$APPIMAGE_TOOL_CACHE"/linuxdeploy "$APPIMAGE_TOOL_CACHE"/linuxdeploy-plugin-qt
+        build_appimage
+        ;;
     *)
-        echo "Usage: $0 [all|fedora|opensuse|deb|arch|flatpak|appimage|appimage-fedora]"
+        echo "Usage: $0 [all|fedora|opensuse|deb|arch|flatpak|appimage|appimage-rebuild-cache]"
         exit 1
         ;;
 esac

@@ -21,6 +21,10 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
     Q_PROPERTY(QString steamGridDbApiKey READ steamGridDbApiKey WRITE setSteamGridDbApiKey NOTIFY steamGridDbApiKeyChanged)
     Q_PROPERTY(bool autoDownloadArt READ autoDownloadArt WRITE setAutoDownloadArt NOTIFY autoDownloadArtChanged)
+    Q_PROPERTY(QString rommServerUrl READ rommServerUrl WRITE setRommServerUrl NOTIFY rommServerUrlChanged)
+    Q_PROPERTY(QString rommApiKey READ rommApiKey WRITE setRommApiKey NOTIFY rommApiKeyChanged)
+    Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
+    Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -70,6 +74,23 @@ public:
     bool autoDownloadArt() const;
     Q_INVOKABLE void setAutoDownloadArt(bool enabled);
 
+    QString rommServerUrl() const;
+    Q_INVOKABLE void setRommServerUrl(const QString &url);
+    QString rommApiKey() const;
+    Q_INVOKABLE void setRommApiKey(const QString &key);
+    QString retroarchPath() const;
+    Q_INVOKABLE void setRetroarchPath(const QString &path);
+    QString romCacheDir() const;
+    Q_INVOKABLE void setRomCacheDir(const QString &dir);
+
+    QVariantMap rommCoreMap() const;
+    Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
+    Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
+
+    QVariantMap rommGameCoreMap() const;
+    Q_INVOKABLE QString rommGameCore(int romId) const;
+    Q_INVOKABLE void setRommGameCore(int romId, const QString &corePath);
+
 Q_SIGNALS:
     void defaultPrefixDirChanged();
     void defaultGamePrefixChanged();
@@ -83,6 +104,12 @@ Q_SIGNALS:
     void bigPictureChanged();
     void steamGridDbApiKeyChanged();
     void autoDownloadArtChanged();
+    void rommServerUrlChanged();
+    void rommApiKeyChanged();
+    void retroarchPathChanged();
+    void romCacheDirChanged();
+    void rommCoreMapChanged();
+    void rommGameCoreMapChanged();
 
 private:
     QSettings m_settings;

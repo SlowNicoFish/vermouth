@@ -5,6 +5,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStringList>
+#include <QVariantMap>
 
 class Launcher : public QObject
 {
@@ -15,6 +16,9 @@ public:
 
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
+    void setRetroarchPath(const QString &path);
+    void setRommCoreMap(const QVariantMap &map);
+    void setRommGameCoreMap(const QVariantMap &map);
 
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
@@ -23,6 +27,11 @@ public:
     }
 
     Q_INVOKABLE void launchEntry(const QVariantMap &app);
+    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false);
+    Q_INVOKABLE QString detectRetroarchPath() const;
+    Q_INVOKABLE QStringList availableCoresForPlatform(const QString &platformSlug) const;
+    Q_INVOKABLE QString buildRomLaunchCommand(const QVariantMap &rom) const;
+    Q_INVOKABLE void copyToClipboard(const QString &text) const;
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
     Q_INVOKABLE void runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
@@ -45,6 +54,8 @@ public:
 Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
+    void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
+    void coreAutoDetected(const QString &platformSlug, const QString &corePath);
     void prefixNotReady(const QString &name);
     void processFinished(int exitCode);
     void runningExePathsChanged();
@@ -63,8 +74,15 @@ private:
                 bool appendExe = true);
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
+    QString resolveRetroarchBinary() const;
+    void cacheRetroarchBinary();
+    QString autoDetectCore(const QString &platformSlug) const;
     QString m_logDir;
     QString m_umuPath;
+    QString m_retroarchPath;
+    QString m_retroarchBinary;
+    QVariantMap m_rommCoreMap;
+    QVariantMap m_rommGameCoreMap;
     QStringList m_globalEnvVars;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;

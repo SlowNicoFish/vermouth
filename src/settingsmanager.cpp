@@ -1,4 +1,7 @@
 #include "settingsmanager.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
 
 SettingsManager::SettingsManager(QObject *parent)
     : QObject(parent)
@@ -199,4 +202,108 @@ void SettingsManager::setAutoDownloadArt(bool enabled)
         return;
     m_settings.setValue(QStringLiteral("autoDownloadArt"), enabled);
     Q_EMIT autoDownloadArtChanged();
+}
+
+QString SettingsManager::rommServerUrl() const
+{
+    return m_settings.value(QStringLiteral("rommServerUrl")).toString();
+}
+
+void SettingsManager::setRommServerUrl(const QString &url)
+{
+    if (rommServerUrl() == url)
+        return;
+    m_settings.setValue(QStringLiteral("rommServerUrl"), url);
+    Q_EMIT rommServerUrlChanged();
+}
+
+QString SettingsManager::rommApiKey() const
+{
+    return m_settings.value(QStringLiteral("rommApiKey")).toString();
+}
+
+void SettingsManager::setRommApiKey(const QString &key)
+{
+    if (rommApiKey() == key)
+        return;
+    m_settings.setValue(QStringLiteral("rommApiKey"), key);
+    Q_EMIT rommApiKeyChanged();
+}
+
+QString SettingsManager::retroarchPath() const
+{
+    return m_settings.value(QStringLiteral("retroarchPath")).toString();
+}
+
+void SettingsManager::setRetroarchPath(const QString &path)
+{
+    if (retroarchPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("retroarchPath"), path);
+    Q_EMIT retroarchPathChanged();
+}
+
+QString SettingsManager::romCacheDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("romCacheDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/romm");
+}
+
+void SettingsManager::setRomCacheDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("romCacheDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("romCacheDir"), dir);
+    Q_EMIT romCacheDirChanged();
+}
+
+QVariantMap SettingsManager::rommCoreMap() const
+{
+    QString json = m_settings.value(QStringLiteral("rommCoreMap")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+QString SettingsManager::rommCore(const QString &platformSlug) const
+{
+    return rommCoreMap().value(platformSlug).toString();
+}
+
+void SettingsManager::setRommCore(const QString &platformSlug, const QString &corePath)
+{
+    QVariantMap map = rommCoreMap();
+    if (corePath.isEmpty())
+        map.remove(platformSlug);
+    else
+        map[platformSlug] = corePath;
+    m_settings.setValue(QStringLiteral("rommCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT rommCoreMapChanged();
+}
+
+QVariantMap SettingsManager::rommGameCoreMap() const
+{
+    QString json = m_settings.value(QStringLiteral("rommGameCoreMap")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+QString SettingsManager::rommGameCore(int romId) const
+{
+    return rommGameCoreMap().value(QString::number(romId)).toString();
+}
+
+void SettingsManager::setRommGameCore(int romId, const QString &corePath)
+{
+    QVariantMap map = rommGameCoreMap();
+    QString key = QString::number(romId);
+    if (corePath.isEmpty())
+        map.remove(key);
+    else
+        map[key] = corePath;
+    m_settings.setValue(QStringLiteral("rommGameCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT rommGameCoreMapChanged();
 }

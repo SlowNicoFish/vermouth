@@ -15,6 +15,10 @@ Kirigami.PromptDialog {
         settingsManager.setDefaultPrefixDir(prefixDirField.text);
         settingsManager.setDefaultGamePrefix(gamePrefixField.text);
         settingsManager.setSteamGridDbApiKey(steamGridDbKeyField.text);
+        settingsManager.setRommServerUrl(rommUrlField.text.trim().replace(/\/+$/, ""));
+        settingsManager.setRommApiKey(rommApiKeyField.text);
+        settingsManager.setRetroarchPath(retroarchPathField.text);
+        settingsManager.setRomCacheDir(romCacheDirField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
         for (var i = 0; i < envModel.count; i++) {
@@ -31,6 +35,10 @@ Kirigami.PromptDialog {
         prefixDirField.text = settingsManager.defaultPrefixDir;
         gamePrefixField.text = settingsManager.defaultGamePrefix;
         steamGridDbKeyField.text = settingsManager.steamGridDbApiKey;
+        rommUrlField.text = settingsManager.rommServerUrl;
+        rommApiKeyField.text = settingsManager.rommApiKey;
+        retroarchPathField.text = settingsManager.retroarchPath;
+        romCacheDirField.text = settingsManager.romCacheDir;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
         for (var i = 0; i < paths.length; i++) {
@@ -279,6 +287,92 @@ Kirigami.PromptDialog {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("RomM")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("RomM is a self-hosted ROM manager. Set your server URL and API key to browse and launch ROMs via RetroArch.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.italic: true
+                opacity: 0.8
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("Server URL:")
+                QQC2.TextField {
+                    id: rommUrlField
+                    Layout.fillWidth: true
+                    placeholderText: "http://your-romm-server:3000"
+                }
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("API Key:")
+                QQC2.TextField {
+                    id: rommApiKeyField
+                    Layout.fillWidth: true
+                    echoMode: TextInput.PasswordEchoOnEdit
+                    placeholderText: i18n("Your RomM API key")
+                }
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("ROM Cache Folder:")
+                QQC2.TextField {
+                    id: romCacheDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: AppData/romm")
+                }
+                QQC2.Button {
+                    icon.name: "document-open"
+                    onClicked: romCacheFolderDialog.open()
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("RetroArch")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("RetroArch is used to launch ROMs. It will be auto-detected if installed in your PATH or as a Flatpak.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.italic: true
+                opacity: 0.8
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("RetroArch binary:")
+                QQC2.TextField {
+                    id: retroarchPathField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Auto-detect")
+                }
+                QQC2.Button {
+                    icon.name: "document-open"
+                    onClicked: retroarchFilePicker.open()
+                }
+                QQC2.Button {
+                    icon.name: "view-refresh"
+                    QQC2.ToolTip.text: i18n("Auto-detect RetroArch")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                    onClicked: {
+                        var detected = launcher.detectRetroarchPath();
+                        if (detected !== "")
+                            retroarchPathField.text = detected;
+                    }
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Extra Proton Scan Paths")
             }
 
@@ -390,6 +484,20 @@ Kirigami.PromptDialog {
                 "path": path
             });
         }
+    }
+
+    FileDialog {
+        id: retroarchFilePicker
+        title: i18n("Select RetroArch binary")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: retroarchPathField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: romCacheFolderDialog
+        title: i18n("Select ROM Cache Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: romCacheDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     ColorDialog {
