@@ -238,7 +238,7 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ComboBox {
                         id: rommPlatformCombo
-                        visible: !root.bigPicture && root.activeTab === 1
+                        visible: root.activeTab === 1
                         model: rommView.platforms
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
@@ -300,19 +300,6 @@ Kirigami.ApplicationWindow {
                 palette.text: root.lightsOut ? root.loText : undefined
                 palette.placeholderText: root.lightsOut ? root.loSubText : undefined
                 palette.brightText: root.lightsOut ? root.loText : undefined
-
-                property var tabs: [
-                    {
-                        name: i18n("Games"),
-                        enabled: true
-                    },
-                    {
-                        name: i18n("RomM"),
-                        enabled: settingsManager.rommServerUrl !== ""
-                    }
-                ]
-                readonly property int enabledTabCount: tabs.filter(t => t.enabled).length
-                visible: enabledTabCount > 1
 
                 property var tabs: [
                     {
