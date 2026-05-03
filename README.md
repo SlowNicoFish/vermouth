@@ -12,41 +12,42 @@
 
 <h1 align="center">Vermouth</h1>
 
-<p align="center">A no-frills game (or any Windows exe) launcher for KDE.<br>
-Point it at Windows executables and run them with Proton or Wine.</p>
+<p align="center">A game and app launcher for Linux - native, Windows, and retro.<br>
+KDE-first, lightweight, no frills.</p>
 
 <p align="center">
   <img src="assets/screen1.png?t=1.41" alt="Vermouth screenshot" width="400">
   <img src="assets/screen2.png?t=1.5" alt="Vermouth screenshot" width="400"><br>
   <img src="assets/screen3.png?t=1.3" alt="Vermouth screenshot" width="400">
   <img src="assets/screen4.png?t=1.3" alt="Vermouth screenshot" width="400"><br>
-  <img src="assets/screen6.png?t=1.5" alt="Vermouth screenshot" width="800">
+  <img src="assets/screen6.png?t=1.5" alt="Vermouth screenshot" width="800"><br>
+  <img src="assets/screen7.png?t=1.5" alt="Vermouth screenshot" width="400">
 </p>
 
 ## What it does
 
-Vermouth keeps a list of your games and applications, paired with a Proton or Wine version. Double-click to launch. That's pretty much it.
-It works like Lutris, Heroic, Fagus or Bottles, but:
+Vermouth is a KDE-first launcher with three modes:
 
-- It's KDE first (written in Qt/Qml and using Kirigami)
-- It tries to be lighter and easier to use - less buttons, checks and knobs, just the bare necessities.
+- **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
+- **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
+- **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads
 
-Additionally:
+It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less buttons, checks and knobs, just the bare necessities.
 
-- It searches for Proton versions from your Steam installation automatically, including custom ones like GE-Proton
-- You can download the latest GE-Proton release with one click if you don't have Steam
-- You can place custom Proton builds in its local folder (usually `~/.local/share/vermouth/protons`, there's a button to open it)
-- Wine works too - just point it at the Wine binary and set a prefix folder
-- It will try to extract icons from .exe files so the grid actually looks nice - install `icoutils` to enable this
-- You can define launch options with `%command%` placeholder, same as in Steam (e.g. `mangohud %command%`, `GAMEID=12345 %command%`)
-- You can run a separate .exe inside an existing prefix (useful for installers, config tools, etc.)
-- You can run common Wine utilities in the prefixes - winecfg, regedit, winetricks
-- You can create start menu entries and desktop shortcuts for individual games, and they work without opening the application window
-- You can prevent the system from sleeping while a game is running
-- HDR can be toggled per-session on KDE - enabling it also sets the required Proton environment variables automatically
-- Big screen mode (beta), gamepad navigation
-- Integration with SteamGridDB for better icons, grid or hero images and layouts
-- You can launch native binaries, desktop entries and appimages
+- Searches for Proton versions from your Steam installation automatically, including GE-Proton
+- Download the latest GE-Proton with one click if you don't have Steam
+- Custom Proton builds go in `~/.local/share/vermouth/protons`
+- Wine works too - point it at the binary and set a prefix folder
+- Extracts icons from `.exe` files automatically (requires `icoutils`)
+- Launch options with `%command%` placeholder, same as Steam (e.g. `mangohud %command%`, `GAMEID=12345 %command%`)
+- Run a separate `.exe` inside an existing prefix (useful for installers and config tools)
+- Run common Wine utilities - winecfg, regedit, winetricks
+- Create start menu entries and desktop shortcuts that work without opening Vermouth
+- Prevent the system from sleeping while a game is running
+- Toggle HDR per-session on KDE - sets the required Proton environment variables automatically
+- Big screen / Big Picture mode with full gamepad navigation
+- SteamGridDB integration for icons, grid art, hero images, and logos
+- [NEW] RomM integration - see notes below.
 
 
 ### umu-launcher support
@@ -59,6 +60,13 @@ If `umu-run` is found in your `PATH` or configured in Settings, Vermouth will us
 ### SteamGridDB support
 
 Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons, grid and hero images and logos. You need an API key which you can get by registering an account with them and getting your API key [here](https://www.steamgriddb.com/profile/preferences/api)
+
+
+### RomM support
+
+Vermouth integrates with [RomM](https://github.com/rommapp/romm), a self-hosted retro game library manager. Point Vermouth at your RomM server URL and API key in Settings, and the RomM tab will let you browse platforms and ROMs, download them locally, and launch them with RetroArch.
+
+ROMs are launched via RetroArch. Vermouth will auto-detect whether RetroArch is installed natively or as a Flatpak. You can assign a RetroArch core per platform in Settings, or override it per game from the right-click menu. Cores must be installed separately in RetroArch before use.
 
 ## Installing
 
@@ -75,7 +83,7 @@ sudo dnf install vermouth
 ### Bazzite
 
 ```bash
-sudo dnf5 copr enable dekomote/vermouth
+sudo dnf5 copr enable dekomote/Vermouth
 sudo rpm-ostree -y install vermouth
 ```
 
@@ -191,16 +199,17 @@ Please use the [issue tracker](https://github.com/dekomote/vermouth/issues) for 
 
 ## How to use it
 
-Open the app, click **Add App/Game**, browse for the .exe file, choose a Proton version from the dropdown (click **Download GE Proton** if you don't have any), and launch from the grid.
+**Windows / native games:** Click **Add App/Game**, browse for the `.exe` or binary, choose a runtime (Proton, Wine, or native), and launch from the grid. Optional fields can be omitted - the name and icon are inferred automatically (requires `icoutils` for `.exe` icons), and the prefix is set based on the game name.
 
-Optional fields can be omitted - the name and icon will be inferred from the exe (requires `icoutils`), and the prefix will be set automatically based on the game name and your default prefix folder.
+The **Launch Options** field wraps the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder - if omitted, options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher.
 
-The **Launch Options** field lets you wrap the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder for where the actual game command goes - if you leave it out, your options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher for game-specific Proton fixes.
+**Retro games:** Configure your RomM server URL and API key in Settings. Switch to the **RomM** tab, pick a platform from the toolbar, and double-click a ROM to download and launch it. Cores can be assigned per platform in Settings or overridden per game via right-click.
 
 In **Settings** you can:
 - Configure [umu-launcher](#umu-launcher-support) for better game compatibility
-- Set the default prefix folder
-- Add extra folders to scan for Proton installations
+- Set the default prefix folder and extra Proton scan paths
+- Set your RomM server URL, API key, and ROM cache directory
+- Configure RetroArch cores per platform
 
 ## FLATPAK NOTES
 
