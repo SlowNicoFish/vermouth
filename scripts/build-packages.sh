@@ -398,10 +398,10 @@ case "$TARGETS" in
     all)
         build_rpm_fedora
         build_rpm_opensuse
-        build_deb
         build_arch
         build_flatpak
         build_appimage
+        build_deb
         ;;
     fedora)                  build_rpm_fedora ;;
     opensuse)                build_rpm_opensuse ;;
