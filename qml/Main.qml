@@ -804,4 +804,8 @@ Kirigami.ApplicationWindow {
             root.updateFooterStatus();
         }
     }
+
+    CorePickerDialog {
+        id: mainCorePicker
+    }
 }
