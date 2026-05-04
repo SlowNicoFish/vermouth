@@ -348,7 +348,8 @@ Kirigami.ApplicationWindow {
         // Main content switcher
         Rectangle {
             anchors.fill: parent
-            color: root.lightsOut ? root.loBase : "white"
+            Kirigami.Theme.colorSet: Kirigami.Theme.View
+            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
 
             StackLayout {
                 anchors.fill: parent
