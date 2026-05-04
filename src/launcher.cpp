@@ -462,7 +462,9 @@ void Launcher::runWinetricks(const QVariantMap &app)
         }
         QString protonPath = app[QStringLiteral("protonPath")].toString();
         env.insert(QStringLiteral("WINEPREFIX"), pfxDir);
-        env.insert(QStringLiteral("WINE"), protonPath + QStringLiteral("/files/bin/wine64"));
+        QString wine64 = protonPath + QStringLiteral("/files/bin/wine64");
+        QString wineBin = QFileInfo::exists(wine64) ? wine64 : protonPath + QStringLiteral("/files/bin/wine");
+        env.insert(QStringLiteral("WINE"), wineBin);
         env.insert(QStringLiteral("WINESERVER"), protonPath + QStringLiteral("/files/bin/wineserver"));
     } else {
         prefix = app[QStringLiteral("winePrefix")].toString();
