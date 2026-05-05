@@ -279,7 +279,7 @@ Kirigami.Dialog {
                 QQC2.Button {
                     visible: runtimePicker.runtimeType !== "native"
                     enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType === "proton" && runtimePicker.protonPath !== ""
-                    icon.name: dialog.installerRunning ? "dialog-information" : "system-run"
+                    icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run"
                     QQC2.ToolTip.text: dialog.installerRunning ? i18n("Installing...") : runtimePicker.runtimeType !== "proton" ? i18n("Select Proton runtime first") : runtimePicker.protonPath === "" ? i18n("Select a Proton version first") : i18n("Run installer in prefix")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
