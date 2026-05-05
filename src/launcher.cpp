@@ -7,6 +7,7 @@
 #include <QDBusReply>
 #include <QDBusUnixFileDescriptor>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
@@ -18,6 +19,7 @@
 #include <QRegularExpression>
 #include <QScreen>
 #include <QStandardPaths>
+#include <QUrl>
 #include <unistd.h>
 
 static bool isKde()
@@ -164,7 +166,9 @@ QString Launcher::buildRomLaunchCommand(const QVariantMap &rom) const
     int romId = rom[QStringLiteral("romId")].toInt();
     QString romPath = rom[QStringLiteral("localRomPath")].toString();
 
-    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    QString corePath = rom[QStringLiteral("customCorePath")].toString();
+    if (corePath.isEmpty())
+        corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
     if (corePath.isEmpty())
         corePath = m_rommCoreMap.value(platformSlug).toString();
     if (corePath.isEmpty())
@@ -211,7 +215,9 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
     }
 
     int romId = rom[QStringLiteral("romId")].toInt();
-    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    QString corePath = rom[QStringLiteral("customCorePath")].toString();
+    if (corePath.isEmpty())
+        corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
     if (corePath.isEmpty())
         corePath = m_rommCoreMap.value(platformSlug).toString();
     if (corePath.isEmpty()) {
@@ -356,6 +362,26 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
 
     QString runtimeType = app[QStringLiteral("runtimeType")].toString();
 
+    if (runtimeType == QStringLiteral("steam")) {
+        int steamId = app[QStringLiteral("steamAppId")].toInt();
+        if (steamId > 0)
+            QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
+        return;
+    }
+
+    if (runtimeType == QStringLiteral("retroarch")) {
+        QString platformSlug = app[QStringLiteral("platformSlug")].toString();
+        QString customCore = app[QStringLiteral("customCorePath")].toString();
+        QVariantMap rom;
+        rom[QStringLiteral("localRomPath")] = exePath;
+        rom[QStringLiteral("name")] = name;
+        rom[QStringLiteral("platformSlug")] = platformSlug;
+        rom[QStringLiteral("customCorePath")] = customCore;
+        rom[QStringLiteral("romId")] = 0;
+        launchRom(rom, logging);
+        return;
+    }
+
     if (runtimeType == QStringLiteral("proton")) {
         QString protonPath = app[QStringLiteral("protonPath")].toString();
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
@@ -466,7 +492,9 @@ void Launcher::runWinetricks(const QVariantMap &app)
         }
         QString protonPath = app[QStringLiteral("protonPath")].toString();
         env.insert(QStringLiteral("WINEPREFIX"), pfxDir);
-        env.insert(QStringLiteral("WINE"), protonPath + QStringLiteral("/files/bin/wine64"));
+        QString wine64 = protonPath + QStringLiteral("/files/bin/wine64");
+        QString wineBin = QFileInfo::exists(wine64) ? wine64 : protonPath + QStringLiteral("/files/bin/wine");
+        env.insert(QStringLiteral("WINE"), wineBin);
         env.insert(QStringLiteral("WINESERVER"), protonPath + QStringLiteral("/files/bin/wineserver"));
     } else {
         prefix = app[QStringLiteral("winePrefix")].toString();
@@ -494,6 +522,13 @@ qint64 Launcher::runningPidForExe(const QString &exePath) const
 bool Launcher::isWinetricksAvailable() const
 {
     return !QStandardPaths::findExecutable(QStringLiteral("winetricks")).isEmpty();
+}
+
+QStringList Launcher::platformSlugs() const
+{
+    QStringList slugs = platformCoreMap().keys();
+    slugs.sort();
+    return slugs;
 }
 
 bool Launcher::sleepInhibited() const

@@ -57,6 +57,8 @@ Kirigami.Dialog {
         heroField.text = "";
         logoField.text = "";
         steamGridDbIdField.text = "";
+        steamIdField.text = "";
+        platformCombo.currentIndex = -1;
         artSection.expanded = false;
         pendingAutoDownload = false;
         pendingInstallerRun = false;
@@ -153,6 +155,8 @@ Kirigami.Dialog {
         heroField.text = app.heroPath || "";
         logoField.text = app.logoPath || "";
         steamGridDbIdField.text = app.steamGridDbId > 0 ? app.steamGridDbId.toString() : "";
+        steamIdField.text = app.steamAppId > 0 ? app.steamAppId.toString() : "";
+        platformCombo.currentIndex = platformCombo.find(app.platformSlug);
         artSection.expanded = gridField.text !== "" || heroField.text !== "" || logoField.text !== "";
         prefixBasePath = protonScanner.prefixBasePath();
         pendingAutoDownload = false;
@@ -169,13 +173,17 @@ Kirigami.Dialog {
             validationError = i18n("Name is required.");
             return false;
         }
-        if (exeField.text.trim() === "") {
+        if (exeField.text.trim() === "" && runtimePicker.runtimeType !== "steam") {
             validationError = i18n("Executable path is required.");
             return false;
         }
         var rtError = runtimePicker.validate();
         if (rtError !== "") {
             validationError = rtError;
+            return false;
+        }
+        if (runtimePicker.runtimeType === "retroarch" && platformCombo.currentIndex < 0) {
+            validationError = i18n("Please select a platform.");
             return false;
         }
         validationError = "";
@@ -200,6 +208,8 @@ Kirigami.Dialog {
             "name": nameField.text,
             "exePath": exeField.text,
             "runtimeType": rt,
+            "steamAppId": rt === "steam" ? (steamIdField.text !== "" ? parseInt(steamIdField.text) : 0) : 0,
+            "platformSlug": rt === "retroarch" ? (platformCombo.currentValue || "") : "",
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
             "wineBinary": runtimePicker.wineBinary,
@@ -255,15 +265,16 @@ Kirigami.Dialog {
             }
 
             RowLayout {
-                Kirigami.FormData.label: runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
+                visible: runtimePicker.runtimeType !== "steam"
+                Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                 QQC2.TextField {
                     id: exeField
                     Layout.fillWidth: true
-                    placeholderText: runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
+                    placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                 }
                 QQC2.Button {
                     icon.name: "document-open"
-                    onClicked: exeFileDialog.open()
+                    onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
                 QQC2.Button {
                     visible: runtimePicker.runtimeType !== "native"
@@ -274,6 +285,29 @@ Kirigami.Dialog {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                     onClicked: runInstallerInPrefix()
                 }
+            }
+
+            RowLayout {
+                visible: runtimePicker.runtimeType === "steam"
+                Kirigami.FormData.label: i18n("Steam App ID:")
+                QQC2.TextField {
+                    id: steamIdField
+                    Layout.fillWidth: true
+                    placeholderText: "730"
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    validator: IntValidator {
+                        bottom: 1
+                    }
+                }
+            }
+
+            QQC2.ComboBox {
+                id: platformCombo
+                visible: runtimePicker.runtimeType === "retroarch"
+                Kirigami.FormData.label: i18n("Platform:")
+                model: launcher.platformSlugs()
+                textRole: "modelData"
+                valueRole: "modelData"
             }
 
             RowLayout {
@@ -492,12 +526,14 @@ Kirigami.Dialog {
 
             QQC2.TextField {
                 id: launchOptionsField
+                visible: runtimePicker.runtimeType !== "steam"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")
             }
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
+                visible: runtimePicker.runtimeType !== "steam"
                 text: i18n("Write output to log file")
             }
 
@@ -528,6 +564,20 @@ Kirigami.Dialog {
             }
         }
         onRejected: dialog.pendingInstallerRun = false
+    }
+
+    FileDialog {
+        id: romFileDialog
+        title: i18n("Select ROM")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            exeField.text = path;
+            if (nameField.text === "") {
+                var parts = path.split("/");
+                nameField.text = parts[parts.length - 1].replace(/\.[^.]+$/, "");
+            }
+        }
     }
 
     FileDialog {

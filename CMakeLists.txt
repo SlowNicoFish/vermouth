@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.6.1 LANGUAGES CXX)
+project(vermouth VERSION 1.7.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,6 +51,9 @@ qt_add_executable(vermouth
     src/singleinstance.cpp
     src/gamepadhandler.cpp
     src/steamgriddb.cpp
+    src/steamlibrary.cpp
+    src/steammodel.cpp
+    src/runtimetypemodel.cpp
     src/rommclient.cpp
     src/rommcovercache.cpp
     src/rommmodel.cpp
@@ -66,12 +69,16 @@ qt_add_qml_module(vermouth
     QML_FILES
         qml/Main.qml
         qml/AddAppDialog.qml
+        qml/GameGridView.qml
         qml/AppGridView.qml
+        qml/GameCardFrame.qml
         qml/RunExeDialog.qml
         qml/RunExeStandaloneDialog.qml
         qml/RuntimePicker.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
+        qml/SteamImportDialog.qml
+        qml/CorePickerDialog.qml
         qml/RommView.qml
     NO_RESOURCE_TARGET_PATH
 )

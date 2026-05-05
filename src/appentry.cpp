@@ -1,14 +1,38 @@
 #include "appentry.h"
 
+const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
+    {"proton", "Proton"},
+    {"wine", "Wine"},
+    {"native", "Native"},
+    {"steam", "Steam"},
+    {"retroarch", "Retroarch"},
+};
+const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
+static_assert(AppEntry::runtimeTypeCount == AppEntry::Count, "runtimeTypeTable and RuntimeType enum are out of sync");
+
+const char *AppEntry::runtimeTypeString(RuntimeType rt)
+{
+    if (rt >= 0 && rt < Count)
+        return runtimeTypeTable[rt].key;
+    return "native";
+}
+
+AppEntry::RuntimeType AppEntry::runtimeTypeFromString(const QString &s)
+{
+    for (int i = 0; i < Count; ++i) {
+        if (s == QLatin1String(runtimeTypeTable[i].key))
+            return static_cast<RuntimeType>(i);
+    }
+    return Native;
+}
+
 QJsonObject AppEntry::toJson() const
 {
     QJsonObject obj;
     obj[QStringLiteral("id")] = id;
     obj[QStringLiteral("name")] = name;
     obj[QStringLiteral("exePath")] = exePath;
-    obj[QStringLiteral("runtimeType")] = runtimeType == Proton ? QStringLiteral("proton")
-        : runtimeType == Wine                                  ? QStringLiteral("wine")
-                                                               : QStringLiteral("native");
+    obj[QStringLiteral("runtimeType")] = QString::fromLatin1(runtimeTypeString(runtimeType));
     obj[QStringLiteral("protonPath")] = protonPath;
     obj[QStringLiteral("protonPrefix")] = protonPrefix;
     obj[QStringLiteral("wineBinary")] = wineBinary;
@@ -18,6 +42,9 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("heroPath")] = heroPath;
     obj[QStringLiteral("logoPath")] = logoPath;
     obj[QStringLiteral("steamGridDbId")] = steamGridDbId;
+    obj[QStringLiteral("steamAppId")] = steamAppId;
+    obj[QStringLiteral("platformSlug")] = platformSlug;
+    obj[QStringLiteral("customCorePath")] = customCorePath;
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     return obj;
@@ -29,10 +56,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("id"), id},
         {QStringLiteral("name"), name},
         {QStringLiteral("exePath"), exePath},
-        {QStringLiteral("runtimeType"),
-         runtimeType == Proton     ? QStringLiteral("proton")
-             : runtimeType == Wine ? QStringLiteral("wine")
-                                   : QStringLiteral("native")},
+        {QStringLiteral("runtimeType"), QString::fromLatin1(runtimeTypeString(runtimeType))},
         {QStringLiteral("protonPath"), protonPath},
         {QStringLiteral("protonPrefix"), protonPrefix},
         {QStringLiteral("wineBinary"), wineBinary},
@@ -42,6 +66,9 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("heroPath"), heroPath},
         {QStringLiteral("logoPath"), logoPath},
         {QStringLiteral("steamGridDbId"), steamGridDbId},
+        {QStringLiteral("steamAppId"), steamAppId},
+        {QStringLiteral("platformSlug"), platformSlug},
+        {QStringLiteral("customCorePath"), customCorePath},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
     };
@@ -56,7 +83,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.name = obj[QStringLiteral("name")].toString();
     e.exePath = obj[QStringLiteral("exePath")].toString();
     QString rt = obj[QStringLiteral("runtimeType")].toString();
-    e.runtimeType = rt == QStringLiteral("proton") ? Proton : rt == QStringLiteral("wine") ? Wine : Native;
+    e.runtimeType = runtimeTypeFromString(rt);
     e.protonPath = obj[QStringLiteral("protonPath")].toString();
     e.protonPrefix = obj[QStringLiteral("protonPrefix")].toString();
     e.wineBinary = obj[QStringLiteral("wineBinary")].toString();
@@ -66,6 +93,9 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.heroPath = obj[QStringLiteral("heroPath")].toString();
     e.logoPath = obj[QStringLiteral("logoPath")].toString();
     e.steamGridDbId = obj[QStringLiteral("steamGridDbId")].toInt(0);
+    e.steamAppId = obj[QStringLiteral("steamAppId")].toInt(0);
+    e.platformSlug = obj[QStringLiteral("platformSlug")].toString();
+    e.customCorePath = obj[QStringLiteral("customCorePath")].toString();
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     return e;
@@ -73,10 +103,12 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
 
 void AppEntry::updateFromVariantMap(const QVariantMap &app)
 {
+    if (app.contains(QStringLiteral("appId")))
+        id = app[QStringLiteral("appId")].toString();
     name = app[QStringLiteral("name")].toString();
     exePath = app[QStringLiteral("exePath")].toString();
     QString rt = app[QStringLiteral("runtimeType")].toString();
-    runtimeType = rt == QStringLiteral("proton") ? AppEntry::Proton : rt == QStringLiteral("wine") ? AppEntry::Wine : AppEntry::Native;
+    runtimeType = runtimeTypeFromString(rt);
     protonPath = app[QStringLiteral("protonPath")].toString();
     protonPrefix = app[QStringLiteral("protonPrefix")].toString();
     wineBinary = app[QStringLiteral("wineBinary")].toString();
@@ -86,6 +118,9 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     heroPath = app[QStringLiteral("heroPath")].toString();
     logoPath = app[QStringLiteral("logoPath")].toString();
     steamGridDbId = app.value(QStringLiteral("steamGridDbId"), 0).toInt();
+    steamAppId = app.value(QStringLiteral("steamAppId"), 0).toInt();
+    platformSlug = app[QStringLiteral("platformSlug")].toString();
+    customCorePath = app[QStringLiteral("customCorePath")].toString();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
 }

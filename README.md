@@ -26,11 +26,12 @@ KDE-first, lightweight, no frills.</p>
 
 ## What it does
 
-Vermouth is a KDE-first launcher with three modes:
+Vermouth is a KDE-first launcher with four modes:
 
 - **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
 - **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
-- **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads
+- **Steam games** - import your installed Steam library with one click and launch games directly via Steam
+- **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads; or add ROM files directly to your library
 
 It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less buttons, checks and knobs, just the bare necessities.
 
@@ -47,7 +48,9 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 - Toggle HDR per-session on KDE - sets the required Proton environment variables automatically
 - Big screen / Big Picture mode with full gamepad navigation
 - SteamGridDB integration for icons, grid art, hero images, and logos
-- [NEW] RomM integration - see notes below.
+- Import your Steam library and launch games via Steam in one click
+- Add ROM files directly to your library and launch them via RetroArch, independent of RomM
+- RomM integration - see notes below.
 
 
 ### umu-launcher support
@@ -60,6 +63,20 @@ If `umu-run` is found in your `PATH` or configured in Settings, Vermouth will us
 ### SteamGridDB support
 
 Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons, grid and hero images and logos. You need an API key which you can get by registering an account with them and getting your API key [here](https://www.steamgriddb.com/profile/preferences/api)
+
+
+### Steam support
+
+Vermouth can import your installed Steam library in one click. Go to **Add → Import from Steam**, select the games you want, and they will appear in your library. Launching them opens Steam directly to that game. Art is fetched from your local Steam cache automatically; any missing artwork is downloaded from SteamGridDB if you have an API key configured.
+
+Steam is detected from all standard install locations, including native and Flatpak installs.
+
+
+### RetroArch support
+
+ROMs can be added to your library directly — no RomM required. Click **Add App/Game**, select **RetroArch** as the runtime, pick the ROM file and platform, and it will appear in your library alongside your other games.
+
+Vermouth auto-detects RetroArch cores for each platform. You can override the core per entry from the right-click menu → **Change Core**.
 
 
 ### RomM support
@@ -203,7 +220,11 @@ Please use the [issue tracker](https://github.com/dekomote/vermouth/issues) for 
 
 The **Launch Options** field wraps the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder - if omitted, options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher.
 
-**Retro games:** Configure your RomM server URL and API key in Settings. Switch to the **RomM** tab, pick a platform from the toolbar, and double-click a ROM to download and launch it. Cores can be assigned per platform in Settings or overridden per game via right-click.
+**Steam games:** Click **Add → Import from Steam**. Vermouth scans your Steam library, shows all installed games, and lets you select which ones to import. Already-imported games are greyed out. Art is resolved from your local Steam cache and any gaps are filled from SteamGridDB automatically.
+
+**RetroArch games:** Click **Add App/Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
+
+**Retro games via RomM:** Configure your RomM server URL and API key in Settings. Switch to the **RomM** tab, pick a platform from the toolbar, and double-click a ROM to download and launch it. Cores can be assigned per platform in Settings or overridden per game via right-click.
 
 In **Settings** you can:
 - Configure [umu-launcher](#umu-launcher-support) for better game compatibility

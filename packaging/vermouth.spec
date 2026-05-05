@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        1.6.1
+Version:        1.7.1
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -51,8 +51,9 @@ Recommends:     icoutils
 Recommends:     SDL2
 
 %description
-Vermouth is a no-frills lightweight game and application launcher that
-lets you run Windows executables through Proton or Wine on KDE.
+Vermouth is a KDE-first game and application launcher. Run native Linux apps
+and games, Windows titles through Proton or Wine, and retro games via your
+RomM library with RetroArch - all from one place.
 
 %prep
 %autosetup
@@ -73,6 +74,12 @@ lets you run Windows executables through Proton or Wine on KDE.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.7.1-1
+- Steam runner, refactors
+* Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.6.3-1
+- Fix for winetricks
+* Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.6.2-1
+- Background regression fix
 * Sun May 3 2026 Dejan Noveski <deko@duck.com> - 1.6.1-1
 - RomM integration, dark mode fixes
 * Thu Apr 30 2026 Dejan Noveski <deko@duck.com> - 1.5.1-1

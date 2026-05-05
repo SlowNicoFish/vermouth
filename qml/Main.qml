@@ -77,6 +77,11 @@ Kirigami.ApplicationWindow {
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
+                text: i18n("Import from Steam")
+                icon.name: "steam"
+                onTriggered: steamImportDialog.openDialog()
+            },
+            Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                 icon.name: launcher.sleepInhibited ? "media-playback-pause" : "system-suspend-inhibited"
                 checkable: true
@@ -234,6 +239,11 @@ Kirigami.ApplicationWindow {
                             icon.name: "list-add"
                             onTriggered: addDialog.openForNewLinux()
                         }
+                        QQC2.MenuItem {
+                            text: i18n("Import from Steam")
+                            icon.name: "steam"
+                            onTriggered: steamImportDialog.openDialog()
+                        }
                     }
 
                     QQC2.ComboBox {
@@ -348,7 +358,8 @@ Kirigami.ApplicationWindow {
         // Main content switcher
         Rectangle {
             anchors.fill: parent
-            color: root.lightsOut ? root.loBase : "white"
+            Kirigami.Theme.colorSet: Kirigami.Theme.View
+            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
 
             StackLayout {
                 anchors.fill: parent
@@ -506,6 +517,10 @@ Kirigami.ApplicationWindow {
 
     RunExeStandaloneDialog {
         id: runExeStandaloneDialog
+    }
+
+    SteamImportDialog {
+        id: steamImportDialog
     }
 
     Kirigami.PromptDialog {
@@ -788,5 +803,9 @@ Kirigami.ApplicationWindow {
         function onAutoDownloadFinished() {
             root.updateFooterStatus();
         }
+    }
+
+    CorePickerDialog {
+        id: mainCorePicker
     }
 }
