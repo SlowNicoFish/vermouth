@@ -75,7 +75,8 @@ Kirigami.Dialog {
                 if (missingArt && settingsManager.autoDownloadArt && settingsManager.steamGridDbApiKey !== "")
                     downloadQueue.push({
                         "appId": appId,
-                        "name": g.name
+                        "name": g.name,
+                        "steamId": g.steamId
                     });
             }
         }
@@ -102,7 +103,7 @@ Kirigami.Dialog {
         var item = downloadQueue.shift();
         currentDownloadAppId = item.appId;
         autoDownloadStatus = i18n("Downloading artwork for %1…", item.name);
-        steamGridDb.autoDownloadAll(item.name, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+        steamGridDb.autoDownloadAllBySteamId(item.steamId, item.name, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
     }
 
     Connections {
@@ -174,14 +175,9 @@ Kirigami.Dialog {
 
                         QQC2.CheckBox {
                             id: cb
+                            checkable: false
                             checked: dialog.checkStates[index] === true
                             enabled: appModel ? !appModel.hasSteamApp(steamId) : true
-                            onCheckedChanged: {
-                                dialog.checkStates[index] = checked;
-                                dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
-                                    return v;
-                                }).length;
-                            }
                         }
 
                         Kirigami.Heading {
@@ -196,8 +192,14 @@ Kirigami.Dialog {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton
                         onClicked: {
-                            if (cb.enabled)
-                                cb.checked = !cb.checked;
+                            if (!cb.enabled)
+                                return;
+                            var s = Object.assign({}, dialog.checkStates);
+                            s[index] = !(s[index] === true);
+                            dialog.checkStates = s;
+                            dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
+                                return v;
+                            }).length;
                         }
                     }
                 }
