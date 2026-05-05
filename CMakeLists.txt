@@ -71,6 +71,7 @@ qt_add_qml_module(vermouth
         qml/AddAppDialog.qml
         qml/GameGridView.qml
         qml/AppGridView.qml
+        qml/GameCardFrame.qml
         qml/RunExeDialog.qml
         qml/RunExeStandaloneDialog.qml
         qml/RuntimePicker.qml

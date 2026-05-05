@@ -165,12 +165,15 @@ GameGridView {
     onContentYChanged: checkLoadMore()
     onHeightChanged: checkLoadMore()
 
-    delegate: Item {
-        id: delegateRoot
-        width: romGrid.cellWidth
-        height: romGrid.cellHeight
+    delegate: GameCardFrame {
+        id: cardFrame
+        gv: romGrid
+        displayName: name
+        artSource: localCover !== "" ? "file://" + localCover : (coverUrl !== "" ? coverUrl : "")
+        iconFallback: ""
+        heroLogo: ""
+        platformLogo: romGrid.platformLogoMap[platformSlug] ?? ""
 
-        required property int index
         required property int romId
         required property string name
         required property string fileName
@@ -180,298 +183,31 @@ GameGridView {
         required property string localCover
         required property double fileSizeBytes
 
-        property bool isSelected: romGrid.currentIndex === delegateRoot.index
-        property string artSource: localCover !== "" ? "file://" + localCover : (coverUrl !== "" ? coverUrl : "")
-        property string platformLogo: romGrid.platformLogoMap[delegateRoot.platformSlug] ?? ""
-
-        Rectangle {
-            id: cardBg
-            anchors.fill: parent
-            anchors.margins: Kirigami.Units.smallSpacing
-            radius: Kirigami.Units.cornerRadius
-            color: "transparent"
-            layer.enabled: romGrid.viewType !== "icon"
-            scale: delegateRoot.isSelected ? 1.06 : 1.0
-            z: delegateRoot.isSelected ? 2 : 0
-            Behavior on scale {
-                NumberAnimation {
-                    duration: 120
-                    easing.type: Easing.OutCubic
-                }
-            }
-
-            SequentialAnimation {
-                id: launchAnim
-                NumberAnimation {
-                    target: cardBg
-                    property: "scale"
-                    to: 0.9
-                    duration: 100
-                    easing.type: Easing.InQuad
-                }
-                NumberAnimation {
-                    target: cardBg
-                    property: "scale"
-                    to: 1.0
-                    duration: 200
-                    easing.type: Easing.OutBack
-                }
-            }
-
-            ColumnLayout {
-                visible: romGrid.viewType === "icon"
-                anchors.fill: parent
-                anchors.margins: Kirigami.Units.smallSpacing + 2
-                spacing: Kirigami.Units.smallSpacing
-
-                Item {
-                    Layout.fillHeight: true
-                    visible: !romGrid.showNames
-                }
-
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredWidth: 80 * romGrid.scaleFactor
-                    Layout.preferredHeight: 80 * romGrid.scaleFactor
-                    radius: Kirigami.Units.cornerRadius
-                    color: "transparent"
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: 70 * romGrid.scaleFactor
-                        height: 70 * romGrid.scaleFactor
-                        source: delegateRoot.artSource
-                        fillMode: Image.PreserveAspectFit
-                        asynchronous: true
-                        visible: delegateRoot.artSource !== ""
-                        sourceSize: Qt.size(128, 128)
-                    }
-                    QQC2.Label {
-                        anchors.centerIn: parent
-                        text: delegateRoot.name.charAt(0).toUpperCase()
-                        font.pixelSize: 32 * romGrid.scaleFactor
-                        font.bold: true
-                        color: Kirigami.Theme.highlightColor
-                        visible: delegateRoot.artSource === ""
-                    }
-                    Rectangle {
-                        visible: delegateRoot.platformLogo !== ""
-                        anchors.top: parent.top
-                        anchors.right: parent.right
-                        width: 18 * romGrid.scaleFactor
-                        height: 18 * romGrid.scaleFactor
-                        radius: 3
-                        color: Qt.rgba(0, 0, 0, 0.55)
-                        Image {
-                            anchors.centerIn: parent
-                            width: parent.width - 2
-                            height: parent.height - 2
-                            source: delegateRoot.platformLogo
-                            fillMode: Image.PreserveAspectFit
-                            asynchronous: true
-                            sourceSize: Qt.size(32, 32)
-                        }
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                    visible: !romGrid.showNames
-                }
-
-                QQC2.Label {
-                    text: delegateRoot.name
-                    visible: romGrid.showNames
-                    color: romGrid.lightsOut ? "#ffffff" : Kirigami.Theme.textColor
-                    font.pixelSize: 12 * romGrid.scaleFactor
-                    font.bold: true
-                    elide: Text.ElideRight
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    wrapMode: Text.Wrap
-                    maximumLineCount: 2
-                }
-            }
-
-            Item {
-                visible: romGrid.viewType !== "icon"
-                anchors.fill: parent
-
-                Image {
-                    id: artImage
-                    anchors.fill: parent
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                    source: delegateRoot.artSource
-                    visible: source !== ""
-                }
-
-                Rectangle {
-                    anchors.fill: parent
-                    visible: artImage.source === ""
-                    color: Kirigami.Theme.alternateBackgroundColor
-
-                    QQC2.Label {
-                        anchors.centerIn: parent
-                        text: delegateRoot.name.charAt(0).toUpperCase()
-                        font.pixelSize: 28 * romGrid.scaleFactor
-                        font.bold: true
-                        color: Kirigami.Theme.highlightColor
-                    }
-                }
-
-                Rectangle {
-                    visible: delegateRoot.platformLogo !== ""
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.margins: Kirigami.Units.smallSpacing
-                    width: 28 * romGrid.scaleFactor
-                    height: 28 * romGrid.scaleFactor
-                    radius: 4
-                    color: Qt.rgba(0, 0, 0, 0.55)
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: parent.width - 4
-                        height: parent.height - 4
-                        source: delegateRoot.platformLogo
-                        fillMode: Image.PreserveAspectFit
-                        asynchronous: true
-                        sourceSize: Qt.size(48, 48)
-                    }
-                }
-
-                Rectangle {
-                    id: artNameOverlay
-                    visible: romGrid.showNames
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    height: artNameLabel.implicitHeight + Kirigami.Units.smallSpacing * 2
-                    color: Qt.rgba(0, 0, 0, 0.65)
-
-                    QQC2.Label {
-                        id: artNameLabel
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.margins: Kirigami.Units.smallSpacing
-                        text: delegateRoot.name
-                        color: "#ffffff"
-                        font.pixelSize: 11 * romGrid.scaleFactor
-                        font.bold: true
-                        elide: Text.ElideRight
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.Wrap
-                        maximumLineCount: 2
-                    }
-                }
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                radius: Kirigami.Units.cornerRadius
-                color: "transparent"
-                border.color: delegateRoot.isSelected ? Kirigami.Theme.highlightColor : mouseArea.containsMouse ? Qt.darker(Kirigami.Theme.highlightColor, 1.5) : "transparent"
-                border.width: delegateRoot.isSelected ? 3 : mouseArea.containsMouse ? 1 : 0
-                z: 5
-                Behavior on border.color {
-                    ColorAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                    }
-                }
-                Behavior on border.width {
-                    NumberAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                    }
-                }
-            }
-
-            Rectangle {
-                id: launchFlash
-                anchors.fill: parent
-                radius: Kirigami.Units.cornerRadius
-                color: Kirigami.Theme.highlightColor
-                opacity: 0
-                z: 10
-                SequentialAnimation {
-                    id: flashAnim
-                    NumberAnimation {
-                        target: launchFlash
-                        property: "opacity"
-                        to: 0.3
-                        duration: 80
-                    }
-                    NumberAnimation {
-                        target: launchFlash
-                        property: "opacity"
-                        to: 0
-                        duration: 300
-                        easing.type: Easing.OutCubic
-                    }
-                }
-            }
-
-            MouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
-                cursorShape: Qt.PointingHandCursor
-                z: 20
-
-                onClicked: function (mouse) {
-                    romGrid.currentIndex = delegateRoot.index;
-                    romGrid.forceActiveFocus();
-                    if (mouse.button === Qt.LeftButton && Qt.styleHints.singleClickActivation) {
-                        launchAnim.start();
-                        flashAnim.start();
-                        romGrid.launchOrDownload(delegateRoot.index);
-                    } else if (mouse.button === Qt.RightButton) {
-                        romContextMenu.popup();
-                    }
-                }
-                onDoubleClicked: function (mouse) {
-                    if (mouse.button === Qt.LeftButton && !Qt.styleHints.singleClickActivation) {
-                        launchAnim.start();
-                        flashAnim.start();
-                        romGrid.launchOrDownload(delegateRoot.index);
-                    }
-                }
-            }
-        }
-
         QQC2.Menu {
             id: romContextMenu
             QQC2.MenuItem {
                 text: i18n("Launch")
                 icon.name: "media-playback-start"
                 onTriggered: {
-                    launchAnim.start();
-                    flashAnim.start();
-                    romGrid.launchOrDownload(delegateRoot.index);
+                    cardFrame.playLaunchAnimation();
+                    romGrid.launchOrDownload(cardFrame.index);
                 }
             }
             QQC2.MenuItem {
                 text: i18n("Launch with Log")
                 icon.name: "text-x-log"
                 onTriggered: {
-                    launchAnim.start();
-                    flashAnim.start();
-                    romGrid.launchOrDownload(delegateRoot.index, true);
+                    cardFrame.playLaunchAnimation();
+                    romGrid.launchOrDownload(cardFrame.index, true);
                 }
             }
             QQC2.MenuItem {
-                readonly property string _firstCached: rommFileDownloader.cachedRomPath(delegateRoot.romId, delegateRoot.fileName)
-                text: _firstCached !== "" ? i18n("ROM cached locally") : i18n("Download ROM (%1 MB)").arg((delegateRoot.fileSizeBytes / (1024 * 1024)).toFixed(1))
+                readonly property string _firstCached: rommFileDownloader.cachedRomPath(cardFrame.romId, cardFrame.fileName)
+                text: _firstCached !== "" ? i18n("ROM cached locally") : i18n("Download ROM (%1 MB)").arg((cardFrame.fileSizeBytes / (1024 * 1024)).toFixed(1))
                 icon.name: "download"
                 enabled: _firstCached === "" && !rommFileDownloader.busy
                 onTriggered: {
-                    var rom = rommModel.getRom(delegateRoot.index);
+                    var rom = rommModel.getRom(cardFrame.index);
                     var files = rom.fileNames;
                     if (!files || files.length <= 1)
                         romGrid.startDownload(rom, files ? files[0] : rom.fileName);
@@ -483,8 +219,8 @@ GameGridView {
                 text: i18n("Change Core…")
                 icon.name: "media-record"
                 onTriggered: {
-                    var rom = rommModel.getRom(delegateRoot.index);
-                    mainCorePicker.platformSlug = delegateRoot.platformSlug;
+                    var rom = rommModel.getRom(cardFrame.index);
+                    mainCorePicker.platformSlug = cardFrame.platformSlug;
                     mainCorePicker.pendingRom = rom;
                     mainCorePicker.appIndex = -1;
                     mainCorePicker.launchAfterPick = false;
@@ -500,8 +236,8 @@ GameGridView {
                 text: i18n("Copy Launch Command")
                 icon.name: "edit-copy"
                 onTriggered: {
-                    var rom = rommModel.getRom(delegateRoot.index);
-                    var cached = rommFileDownloader.cachedRomPath(delegateRoot.romId, delegateRoot.fileName);
+                    var rom = rommModel.getRom(cardFrame.index);
+                    var cached = rommFileDownloader.cachedRomPath(cardFrame.romId, cardFrame.fileName);
                     if (cached !== "")
                         rom.localRomPath = cached;
                     var cmd = launcher.buildRomLaunchCommand(rom);
@@ -513,6 +249,13 @@ GameGridView {
                     }
                 }
             }
+        }
+
+        onLaunched: {
+            romGrid.launchOrDownload(cardFrame.index);
+        }
+        onContextMenuRequested: {
+            romContextMenu.popup();
         }
     }
 
