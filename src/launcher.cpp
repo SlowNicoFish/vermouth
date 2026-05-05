@@ -366,7 +366,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         int steamId = app[QStringLiteral("steamAppId")].toInt();
         if (steamId > 0)
             QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
-        return;
+        return -1;
     }
 
     if (runtimeType == QStringLiteral("retroarch")) {
@@ -379,7 +379,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         rom[QStringLiteral("customCorePath")] = customCore;
         rom[QStringLiteral("romId")] = 0;
         launchRom(rom, logging);
-        return;
+        return -1;
     }
 
     if (runtimeType == QStringLiteral("proton")) {

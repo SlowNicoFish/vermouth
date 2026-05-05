@@ -278,9 +278,9 @@ Kirigami.Dialog {
                 }
                 QQC2.Button {
                     visible: runtimePicker.runtimeType !== "native"
-                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning
+                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType === "proton" && runtimePicker.protonPath !== ""
                     icon.name: dialog.installerRunning ? "dialog-information" : "system-run"
-                    QQC2.ToolTip.text: dialog.installerRunning ? i18n("Installing...") : i18n("Run installer in prefix")
+                    QQC2.ToolTip.text: dialog.installerRunning ? i18n("Installing...") : runtimePicker.runtimeType !== "proton" ? i18n("Select Proton runtime first") : runtimePicker.protonPath === "" ? i18n("Select a Proton version first") : i18n("Run installer in prefix")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                     onClicked: runInstallerInPrefix()
@@ -551,7 +551,7 @@ Kirigami.Dialog {
 
     FileDialog {
         id: exeFileDialog
-        title: i18n("Select Executable")
+        title: dialog.pendingInstallerRun ? i18n("Select installer (exe)") : i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
@@ -559,11 +559,16 @@ Kirigami.Dialog {
             dialog.applyExePath(path);
             if (dialog.pendingInstallerRun) {
                 dialog.pendingInstallerRun = false;
-                dialog.offerExePickAfterInstaller = true;
+                dialog.offerExePickAfterInstaller = false;
                 dialog.runInstallerInPrefix();
+                if (dialog.installerPid && dialog.installerPid > 0)
+                    dialog.offerExePickAfterInstaller = true;
             }
         }
-        onRejected: dialog.pendingInstallerRun = false
+        onRejected: {
+            dialog.pendingInstallerRun = false;
+            dialog.offerExePickAfterInstaller = false;
+        }
     }
 
     FileDialog {
