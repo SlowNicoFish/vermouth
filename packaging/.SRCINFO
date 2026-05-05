@@ -1,5 +1,5 @@
 pkgbase = vermouth
-	pkgdesc = A no-frills Wine/Proton game launcher for Linux
+	pkgdesc = A game and app launcher for Linux - native, Windows, and retro
 	pkgver = 1.6.3
 	pkgrel = 1
 	url = https://github.com/dekomote/vermouth
@@ -17,7 +17,9 @@ pkgbase = vermouth
 	depends = qqc2-desktop-style
 	optdepends = icoutils: Windows icon extraction
 	optdepends = sdl2: gamepad support
+	provides = vermouth
+	conflicts = vermouth
 	source = vermouth-1.6.3.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v1.6.3.tar.gz
-	sha256sums = af357d8588f0ef5ed8755941910539b8db2116134ac47f6c29ae9fdec1ddcd9c
+	sha256sums = 499d97ad696eeaaa692f31b2bc656bea782f247b3deb64a13a60a46a53aacec5
 
 pkgname = vermouth

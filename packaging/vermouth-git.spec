@@ -1,13 +1,20 @@
+# COPR SCM builds inject %commit and %shortcommit automatically.
+# For local builds: rpmbuild --define "commit <fullhash>" --define "shortcommit <7charhash>"
+%global commit      %{?commit}%{!?commit:0000000000000000000000000000000000000000}
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+%global cmakever    %(sed -n 's/^project(vermouth VERSION \([0-9.]*\).*/\1/p' %{_sourcedir}/../CMakeLists.txt 2>/dev/null || echo 0)
+
 Name:           vermouth
-Version:        1.6.3
-Release:        1%{?dist}
-Summary:        A no-frills Wine/Proton game launcher for KDE
+Version:        %{cmakever}
+Release:        0^git%{shortcommit}%{?dist}
+Summary:        A game and app launcher for Linux - native, Windows, and retro
 License:        MIT
 URL:            https://github.com/dekomote/vermouth
-Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:        %{url}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz
 
 BuildRequires:  cmake >= 3.20
 BuildRequires:  extra-cmake-modules
+BuildRequires:  git
 
 %if 0%{?suse_version}
 BuildRequires:  gcc-c++
@@ -55,8 +62,10 @@ Vermouth is a KDE-first game and application launcher. Run native Linux apps
 and games, Windows titles through Proton or Wine, and retro games via your
 RomM library with RetroArch - all from one place.
 
+This package tracks the development branch and may be unstable.
+
 %prep
-%autosetup
+%autosetup -n %{name}-%{commit}
 
 %build
 %cmake
@@ -74,25 +83,5 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
-* Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.6.3-1
-- Fix for winetricks
-* Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.6.2-1
-- Background regression fix
-* Sun May 3 2026 Dejan Noveski <deko@duck.com> - 1.6.1-1
-- RomM integration, dark mode fixes
-* Thu Apr 30 2026 Dejan Noveski <deko@duck.com> - 1.5.1-1
-- SteamGridDB integration, fixes
-* Mon Apr 27 2026 Dejan Noveski <deko@duck.com> - 1.4.1-1
-- Launch native apps
-* Sat Apr 25 2026 Dejan Noveski <deko@duck.com> - 1.3.5-1
-- Lights off mode, Big Picture mode
-* Tue Apr 21 2026 Dejan Noveski <deko@duck.com> - 1.3.4-1
-- Single prefix fix, HDR Enable fix for full gamut monitors
-* Mon Apr 20 2026 Dejan Noveski <deko@duck.com> - 1.3.3-1
-- Single prefix support, known exe launch, Stop button, HDR disable, translations
-* Fri Apr 17 2026 Dejan Noveski <deko@duck.com> - 1.3.2-1
-- UMU prefix fixed, added single instance support
-* Fri Apr 17 2026 Dejan Noveski <deko@duck.com> - 1.3.1-1
-- Update to 1.3.1 - HDR and UMU
-* Tue Apr 14 2026 Dejan Noveski <deko@duck.com> - 1.2.1-1
-- Initial COPR package
+* Tue May 05 2026 Dejan Noveski <deko@duck.com> - 0^git
+- Git snapshot package
