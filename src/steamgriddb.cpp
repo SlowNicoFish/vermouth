@@ -294,6 +294,40 @@ void SteamGridDB::autoDownloadAll(const QString &gameName, const QString &assets
     });
 }
 
+void SteamGridDB::autoDownloadAllBySteamId(int steamId, const QString &gameName, const QString &assetsPath, const QString &apiKey)
+{
+    if (m_autoBusy || steamId <= 0)
+        return;
+
+    initAutoDownload(gameName, assetsPath, apiKey);
+    Q_EMIT autoDownloadProgress(tr("Looking up game…"));
+
+    QUrl url(QStringLiteral("https://www.steamgriddb.com/api/v2/games/steam/%1").arg(steamId));
+    QNetworkRequest req(url);
+    req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Vermouth"));
+    req.setRawHeader(QByteArrayLiteral("Authorization"), QByteArrayLiteral("Bearer ") + m_autoApiKey.toUtf8());
+
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            autoFinish();
+            return;
+        }
+        auto obj = QJsonDocument::fromJson(reply->readAll()).object();
+        if (!obj.value(QStringLiteral("success")).toBool()) {
+            autoFinish();
+            return;
+        }
+        m_autoGameId = obj.value(QStringLiteral("data")).toObject().value(QStringLiteral("id")).toInt();
+        if (m_autoGameId <= 0) {
+            autoFinish();
+            return;
+        }
+        autoRunStep(0);
+    });
+}
+
 void SteamGridDB::autoDownloadAllById(int gameId, const QString &gameName, const QString &assetsPath, const QString &apiKey)
 {
     if (m_autoBusy || gameId <= 0)

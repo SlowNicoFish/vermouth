@@ -9,9 +9,11 @@
 #include "rommcovercache.h"
 #include "rommfiledownloader.h"
 #include "rommmodel.h"
+#include "runtimetypemodel.h"
 #include "settingsmanager.h"
 #include "singleinstance.h"
 #include "steamgriddb.h"
+#include "steammodel.h"
 #include "umudownloader.h"
 #include <KAboutData>
 #include <KLocalizedContext>
@@ -169,6 +171,10 @@ int main(int argc, char *argv[])
 
     SteamGridDB steamGridDb;
 
+    SteamModel steamModel;
+
+    RuntimeTypeModel runtimeTypeModel;
+
     launcher.setUmuPath(settingsManager.umuPath());
     QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, [&]() {
         launcher.setUmuPath(settingsManager.umuPath());
@@ -257,6 +263,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
+    engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("runtimeModel"), &runtimeTypeModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
     engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommCoverCache"), &rommCoverCache);

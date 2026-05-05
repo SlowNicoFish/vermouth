@@ -1,6 +1,6 @@
 # Maintainer: Dejan Noveski <deko@duck.com>
-pkgname=vermouth
-pkgver=1.6.3
+pkgname=vermouth-git
+pkgver=r1.r0.g0000000
 pkgrel=1
 pkgdesc="A game and app launcher for Linux - native, Windows, and retro"
 arch=('x86_64')
@@ -20,17 +20,23 @@ makedepends=(
     'cmake'
     'ninja'
     'extra-cmake-modules'
+    'git'
     'sdl2'
 )
 optdepends=(
     'icoutils: Windows icon extraction'
     'sdl2: gamepad support'
 )
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('499d97ad696eeaaa692f31b2bc656bea782f247b3deb64a13a60a46a53aacec5')
+source=("${pkgname}::git+https://github.com/dekomote/vermouth.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$pkgname"
+    git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 build() {
-    cd "${pkgname}-${pkgver}"
+    cd "$pkgname"
     cmake -B build \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
@@ -39,7 +45,7 @@ build() {
 }
 
 package() {
-    cd "${pkgname}-${pkgver}"
+    cd "$pkgname"
     DESTDIR="$pkgdir" cmake --install build
     install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
