@@ -2,10 +2,9 @@
 # For local builds: rpmbuild --define "commit <fullhash>" --define "shortcommit <7charhash>"
 %global commit      %{?commit}%{!?commit:0000000000000000000000000000000000000000}
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
-%global cmakever    %(sed -n 's/^project(vermouth VERSION \([0-9.]*\).*/\1/p' %{_sourcedir}/../CMakeLists.txt 2>/dev/null || echo 0)
 
 Name:           vermouth
-Version:        %{cmakever}
+Version:        1.6.3
 Release:        0^git%{shortcommit}%{?dist}
 Summary:        A game and app launcher for Linux - native, Windows, and retro
 License:        MIT
