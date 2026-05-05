@@ -1,43 +1,11 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
-import QtCore
 import org.kde.kirigami as Kirigami
 
-GridView {
+GameGridView {
     id: gridView
     model: appModel
-    property real scaleFactor: 1.0
-    property bool lightsOut: false
-    property string viewType: "icon"
-    property bool showNames: true
-
-    Settings {
-        id: viewSettings
-        category: "GridView"
-        property alias scaleFactor: gridView.scaleFactor
-        property alias viewType: gridView.viewType
-        property alias showNames: gridView.showNames
-    }
-
-    cellWidth: viewType === "hero" ? 300 * scaleFactor : viewType === "grid" ? 155 * scaleFactor : 140 * scaleFactor
-    cellHeight: {
-        if (viewType === "hero")
-            return (showNames ? 140 : 116) * scaleFactor;
-        if (viewType === "grid")
-            return (showNames ? 250 : 232) * scaleFactor;
-        return (showNames ? 160 : 120) * scaleFactor;
-    }
-
-    clip: true
-    focus: true
-    keyNavigationEnabled: true
-    property bool active: true
-
-    onActiveFocusChanged: {
-        if (!activeFocus)
-            currentIndex = -1;
-    }
 
     Connections {
         target: launcher
@@ -48,12 +16,6 @@ GridView {
                 mainCorePicker.appIndex = -1;
                 mainCorePicker.open();
             }
-        }
-    }
-
-    TapHandler {
-        onTapped: {
-            gridView.currentIndex = -1;
         }
     }
 
