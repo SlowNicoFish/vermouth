@@ -118,7 +118,6 @@ void UmuDownloader::onReleaseFetched(QNetworkReply *reply)
         }
         setStatusText(tr("Installing…"));
         setProgress(1.0);
-
         QDir().mkpath(m_installPath);
         QString umuBinPath = m_installPath + QStringLiteral("/umu-run");
         QFile binFile(umuBinPath);
@@ -155,6 +154,7 @@ void UmuDownloader::startTarExtraction(QTemporaryFile *archiveFile)
             delete tmpExtractDir;
             return;
         }
+        QDir().mkpath(m_installPath);
         QString umuBinPath = m_installPath + QStringLiteral("/umu-run");
         QString foundPath = *tmpExtractDir + QStringLiteral("/umu/umu-run");
         if (QFile::exists(foundPath)) {

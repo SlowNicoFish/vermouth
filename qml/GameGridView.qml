@@ -25,7 +25,7 @@ GridView {
             return base;
         var cols = Math.max(1, Math.floor(width / base));
         if (count <= cols)
-            return Math.min(width / count, base * 2);
+            return Math.min(width / count, base);
         return Math.max(base, width / cols);
     }
     cellHeight: {
