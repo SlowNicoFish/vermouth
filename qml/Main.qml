@@ -210,7 +210,16 @@ Kirigami.ApplicationWindow {
                             else
                                 rommView.applySearch(text);
                         }
-                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                        Kirigami.Theme.colorSet: Kirigami.Theme.View
+                        Kirigami.Theme.inherit: false
+                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
+                        background: Rectangle {
+                            color: root.lightsOut ? root.loDark : Kirigami.Theme.backgroundColor
+                            radius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: searchField.hovered || searchField.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                        }
                     }
 
                     Item {
@@ -253,7 +262,22 @@ Kirigami.ApplicationWindow {
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
                         displayText: count > 0 ? currentText : i18n("Select platform…")
-                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                        Kirigami.Theme.colorSet: Kirigami.Theme.Button
+                        Kirigami.Theme.inherit: false
+                        background: Rectangle {
+                            color: root.lightsOut ? root.loDark : Kirigami.Theme.backgroundColor
+                            radius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: rommPlatformCombo.hovered || rommPlatformCombo.popup.visible ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                        }
+                        contentItem: Text {
+                            leftPadding: Kirigami.Units.smallSpacing * 2
+                            rightPadding: (rommPlatformCombo.indicator ? rommPlatformCombo.indicator.width : 0) + Kirigami.Units.smallSpacing
+                            text: rommPlatformCombo.displayText
+                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
 
                         onModelChanged: {
                             var platforms = rommView.platforms;
@@ -309,7 +333,6 @@ Kirigami.ApplicationWindow {
                 palette.base: root.lightsOut ? root.loBase : undefined
                 palette.text: root.lightsOut ? root.loText : undefined
                 palette.placeholderText: root.lightsOut ? root.loSubText : undefined
-                palette.brightText: root.lightsOut ? root.loText : undefined
 
                 property var tabs: [
                     {
@@ -350,6 +373,25 @@ Kirigami.ApplicationWindow {
                         text: modelData.name
                         enabled: modelData.enabled
                         visible: modelData.enabled
+                        background: Rectangle {
+                            color: root.lightsOut ? (parent.checked ? root.loBase : parent.hovered ? Qt.lighter(root.loMid, 1.15) : root.loMid) : (parent.checked ? Kirigami.Theme.backgroundColor : Qt.darker(Kirigami.Theme.backgroundColor, 1.05))
+                            Rectangle {
+                                anchors {
+                                    bottom: parent.bottom
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                height: 2
+                                color: root.lightsOut ? root.loHighlight : Kirigami.Theme.highlightColor
+                                visible: parent.parent.checked
+                            }
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
                 }
             }
