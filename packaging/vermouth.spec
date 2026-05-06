@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        1.7.1
+Version:        1.7.2
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -74,6 +74,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Wed May 6 2026 Dejan Noveski <deko@duck.com> - 1.7.2-1
+- Fixes for Umu, dark mode and icons
 * Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.7.1-1
 - Steam runner, refactors
 * Mon May 4 2026 Dejan Noveski <deko@duck.com> - 1.6.3-1
