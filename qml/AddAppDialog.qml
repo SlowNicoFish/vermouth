@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 
-Kirigami.PromptDialog {
+Kirigami.Dialog {
     id: dialog
     title: editMode ? i18n("Edit Game") : i18n("Add Game")
     preferredWidth: Kirigami.Units.gridUnit * 35
@@ -240,6 +240,7 @@ Kirigami.PromptDialog {
             QQC2.TextField {
                 id: nameField
                 Layout.topMargin: 10
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Name:")
                 placeholderText: i18n("My Game")
             }
@@ -366,6 +367,7 @@ Kirigami.PromptDialog {
                 spacing: Kirigami.Units.mediumSpacing
 
                 RowLayout {
+                    Layout.fillWidth: true
                     Kirigami.FormData.label: i18n("Grid (optional):")
                     QQC2.TextField {
                         id: gridField
@@ -452,6 +454,7 @@ Kirigami.PromptDialog {
 
         Kirigami.FormLayout {
             twinFormLayouts: runtimePicker.formLayout
+            Layout.fillWidth: true
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
@@ -491,6 +494,7 @@ Kirigami.PromptDialog {
 
             QQC2.TextField {
                 id: launchOptionsField
+                Layout.fillWidth: true
                 visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")

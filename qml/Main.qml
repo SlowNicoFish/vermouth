@@ -504,15 +504,15 @@ Kirigami.ApplicationWindow {
                     icon.name: "zoom-out"
                     focusPolicy: Qt.NoFocus
                     flat: true
-                    enabled: gridView.scaleFactor > 0.5
-                    onClicked: gridView.scaleFactor = Math.max(0.5, gridView.scaleFactor - 0.25)
+                    enabled: gridView.scaleFactor > 0.8
+                    onClicked: gridView.scaleFactor = Math.max(0.8, gridView.scaleFactor - 0.2)
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
                 QQC2.Slider {
                     focusPolicy: Qt.NoFocus
-                    from: 0.5
-                    to: 2.0
-                    stepSize: 0.25
+                    from: 0.8
+                    to: 1.8
+                    stepSize: 0.2
                     value: gridView.scaleFactor
                     onMoved: gridView.scaleFactor = value
                     implicitWidth: Kirigami.Units.gridUnit * 6
@@ -521,8 +521,8 @@ Kirigami.ApplicationWindow {
                     icon.name: "zoom-in"
                     focusPolicy: Qt.NoFocus
                     flat: true
-                    enabled: gridView.scaleFactor < 2.0
-                    onClicked: gridView.scaleFactor = Math.min(2.0, gridView.scaleFactor + 0.25)
+                    enabled: gridView.scaleFactor < 1.8
+                    onClicked: gridView.scaleFactor = Math.min(1.8, gridView.scaleFactor + 0.2)
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
             }

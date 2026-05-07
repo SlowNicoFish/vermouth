@@ -126,6 +126,7 @@ ColumnLayout {
             model: runtimeModel
             textRole: "label"
             valueRole: "key"
+            Layout.minimumWidth: 400
         }
 
         RowLayout {

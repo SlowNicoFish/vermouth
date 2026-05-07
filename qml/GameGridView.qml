@@ -1,5 +1,6 @@
 import QtQuick
 import QtCore
+import org.kde.kirigami as Kirigami
 
 GridView {
     id: gridView
@@ -9,6 +10,8 @@ GridView {
     property bool showNames: true
     property bool active: true
     property bool lightsOut: false
+    topMargin: Kirigami.Units.mediumSpacing
+    bottomMargin: Kirigami.Units.mediumSpacing
 
     Settings {
         id: viewSettings
