@@ -1,10 +1,12 @@
+<div align="center">
+
 [![Build AppImage](https://github.com/dekomote/vermouth/actions/workflows/build-appimage.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-appimage.yml)
 [![Build DEB](https://github.com/dekomote/vermouth/actions/workflows/build-deb.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-deb.yml)
 [![Build RPM](https://github.com/dekomote/vermouth/actions/workflows/build-rpm.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-rpm.yml)
 [![Build Flatpak](https://github.com/dekomote/vermouth/actions/workflows/build-flatpak.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-flatpak.yml)
 [![Build Arch Package](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/RmppukhVYq)
 
+</div>
 
 <p align="center">
   <img src="assets/com.dekomote.vermouth.svg" width="128" height="128" alt="Vermouth logo">
@@ -16,12 +18,11 @@
 KDE-first, lightweight, no frills.</p>
 
 <p align="center">
-  <img src="assets/screen1.png?t=1.41" alt="Vermouth screenshot" width="400">
-  <img src="assets/screen2.png?t=1.5" alt="Vermouth screenshot" width="400"><br>
-  <img src="assets/screen3.png?t=1.3" alt="Vermouth screenshot" width="400">
-  <img src="assets/screen4.png?t=1.3" alt="Vermouth screenshot" width="400"><br>
-  <img src="assets/screen6.png?t=1.5" alt="Vermouth screenshot" width="800"><br>
-  <img src="assets/screen7.png?t=1.5" alt="Vermouth screenshot" width="400">
+  <img src="assets/screen1.png?t=1.71" alt="Vermouth screenshot" width="400">
+  <img src="assets/screen2.png?t=1.7" alt="Vermouth screenshot" width="400"><br>
+  <img src="assets/screen3.png?t=1.7" alt="Vermouth screenshot" width="400">
+  <img src="assets/screen4.png?t=1.7" alt="Vermouth screenshot" width="400"><br>
+  <img src="assets/screen7.png?t=1.7" alt="Vermouth screenshot" width="400">
 </p>
 
 ## What it does
