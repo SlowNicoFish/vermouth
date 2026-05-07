@@ -11,6 +11,10 @@ finish-args:
   - --socket=wayland
   - --device=dri
   - --socket=pulseaudio
+  - --allow=per-app-dev-shm
+  - --filesystem=home
+  - --allow=devel
+  - --allow=per-app-dev-shm
 
 modules:
   - name: vermouth
