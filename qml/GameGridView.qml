@@ -19,7 +19,7 @@ GridView {
     }
 
     cellWidth: {
-        var base = viewType === "hero" ? 300 : viewType === "grid" ? 155 : 140;
+        var base = viewType === "hero" ? 306 : viewType === "grid" ? 200 : 140;
         base *= scaleFactor;
         if (width <= 0 || count <= 0)
             return base;
@@ -29,9 +29,9 @@ GridView {
         return Math.max(base, width / cols);
     }
     cellHeight: {
-        var baseH = viewType === "hero" ? (showNames ? 140 : 116) : viewType === "grid" ? (showNames ? 250 : 232) : (showNames ? 160 : 120);
+        var baseH = viewType === "hero" ? 143 : viewType === "grid" ? 300 : (showNames ? 140 : 120);
         baseH *= scaleFactor;
-        var baseW = viewType === "hero" ? 300 : viewType === "grid" ? 155 : 140;
+        var baseW = viewType === "hero" ? 306 : viewType === "grid" ? 200 : 140;
         baseW *= scaleFactor;
         return cellWidth * (baseH / baseW);
     }

@@ -117,6 +117,7 @@ ColumnLayout {
         QQC2.ComboBox {
             id: runtimeCombo
             Kirigami.FormData.label: i18n("Runtime:")
+            Layout.fillWidth: true
             model: runtimeModel
             textRole: "label"
             valueRole: "key"

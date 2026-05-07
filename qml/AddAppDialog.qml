@@ -6,7 +6,7 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: editMode ? i18n("Edit App/Game") : i18n("Add App/Game")
+    title: editMode ? i18n("Edit Game") : i18n("Add Game")
     preferredWidth: Kirigami.Units.gridUnit * 35
     padding: Kirigami.Units.largeSpacing
     bottomPadding: 30
@@ -89,15 +89,6 @@ Kirigami.Dialog {
             protonPrefixField.text = resolvedPrefix;
         if (winePrefixField.text === "")
             winePrefixField.text = resolvedPrefix;
-    }
-
-    function openForNewLinux() {
-        openForNew();
-        runtimePicker.setRuntimeType("native");
-    }
-
-    function openForNewWindows() {
-        openForNew();
     }
 
     function openForNewWithExe(exePath) {
@@ -215,6 +206,12 @@ Kirigami.Dialog {
             visible: dialog.validationError !== ""
         }
 
+        RuntimePicker {
+            id: runtimePicker
+            Layout.fillWidth: true
+            twinFormLayouts: topForm
+        }
+
         Kirigami.FormLayout {
             id: topForm
             twinFormLayouts: runtimePicker.formLayout
@@ -222,13 +219,6 @@ Kirigami.Dialog {
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Game")
-            }
-
-            QQC2.TextField {
-                id: nameField
-                Layout.topMargin: 10
-                Kirigami.FormData.label: i18n("Name:")
-                placeholderText: i18n("My Game")
             }
 
             RowLayout {
@@ -243,6 +233,13 @@ Kirigami.Dialog {
                     icon.name: "document-open"
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
+            }
+
+            QQC2.TextField {
+                id: nameField
+                Layout.topMargin: 10
+                Kirigami.FormData.label: i18n("Name:")
+                placeholderText: i18n("My Game")
             }
 
             RowLayout {
@@ -266,13 +263,19 @@ Kirigami.Dialog {
                 model: launcher.platformSlugs()
                 textRole: "modelData"
                 valueRole: "modelData"
+                Layout.fillWidth: true
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Artwork")
             }
 
             RowLayout {
                 Kirigami.FormData.label: i18n("SteamGridDB ID:")
                 QQC2.TextField {
                     id: steamGridDbIdField
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 8
+                    Layout.fillWidth: true
                     placeholderText: i18n("optional")
                     inputMethodHints: Qt.ImhDigitsOnly
                     validator: IntValidator {
@@ -440,14 +443,14 @@ Kirigami.Dialog {
             }
         }
 
-        RuntimePicker {
-            id: runtimePicker
-            Layout.fillWidth: true
-            twinFormLayouts: topForm
-        }
-
         Kirigami.FormLayout {
             twinFormLayouts: runtimePicker.formLayout
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Runtime Options")
+                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
+            }
 
             RowLayout {
                 visible: runtimePicker.runtimeType === "proton"
@@ -477,21 +480,16 @@ Kirigami.Dialog {
                 }
             }
 
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Options")
-            }
-
             QQC2.TextField {
                 id: launchOptionsField
-                visible: runtimePicker.runtimeType !== "steam"
+                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")
             }
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
-                visible: runtimePicker.runtimeType !== "steam"
+                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 text: i18n("Write output to log file")
             }
 

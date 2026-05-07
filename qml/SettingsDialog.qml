@@ -9,6 +9,7 @@ Kirigami.PromptDialog {
     title: i18n("Settings")
     preferredWidth: Kirigami.Units.gridUnit * 30
     bottomPadding: 30
+    leftPadding: Kirigami.Units.largeSpacing * 2
     standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     onAccepted: {
         settingsManager.setUmuPath(umuPathField.text);
@@ -133,8 +134,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
@@ -196,8 +198,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
@@ -219,8 +222,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             Kirigami.Separator {
@@ -229,7 +233,7 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
-                Kirigami.FormData.label: i18n("Download GE Proton to run most games and apps - no Steam or manual setup needed.")
+                Kirigami.FormData.label: i18n("GE Proton:")
                 QQC2.Button {
                     icon.name: "folder-open"
                     text: i18n("Open Vermouth Proton folder")
@@ -247,6 +251,17 @@ Kirigami.PromptDialog {
                 }
             }
 
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Download GE Proton to run most games and apps — no Steam or manual setup needed.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("SteamGridDB")
@@ -258,8 +273,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             QQC2.TextField {
@@ -280,8 +296,8 @@ Kirigami.PromptDialog {
                 QQC2.Label {
                     text: i18n("Automatically download icon, grid, hero and logo when adding a game")
                     wrapMode: Text.WordWrap
-                    font.italic: true
-                    opacity: 0.8
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    color: Kirigami.Theme.disabledTextColor
                 }
             }
 
@@ -296,8 +312,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
@@ -343,8 +360,9 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 font.italic: true
-                opacity: 0.8
+                color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
@@ -377,7 +395,7 @@ Kirigami.PromptDialog {
             }
 
             ColumnLayout {
-                Kirigami.FormData.label: i18n("Folders to scan for Proton installations (in addition to Steam and local paths).")
+                Kirigami.FormData.label: i18n("Scan Folders:")
                 Layout.fillWidth: true
                 Repeater {
                     model: pathsModel
@@ -405,13 +423,24 @@ Kirigami.PromptDialog {
                 }
             }
 
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Folders to scan for Proton installations, in addition to Steam and local paths.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Global Environment Variables")
             }
 
             ColumnLayout {
-                Kirigami.FormData.label: i18n("Applied to every game. Per-game launch options can override these.")
+                Kirigami.FormData.label: i18n("Variables:")
                 Layout.fillWidth: true
 
                 Repeater {
@@ -448,6 +477,17 @@ Kirigami.PromptDialog {
                         "value": ""
                     })
                 }
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Applied to every game. Per-game launch options can override these.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
             }
         }
     }

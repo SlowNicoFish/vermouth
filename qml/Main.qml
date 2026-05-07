@@ -62,17 +62,12 @@ Kirigami.ApplicationWindow {
         actions: [
             Kirigami.Action {
                 id: firstDrawerAction
-                text: i18n("Add &Windows App/Game")
+                text: i18n("Add a Game")
                 icon.name: "list-add"
-                onTriggered: addDialog.openForNewWindows()
+                onTriggered: addDialog.openForNew()
             },
             Kirigami.Action {
-                text: i18n("Add &Linux App/Game")
-                icon.name: "list-add"
-                onTriggered: addDialog.openForNewLinux()
-            },
-            Kirigami.Action {
-                text: i18n("Run &Standalone EXE")
+                text: i18n("Run a Standalone EXE")
                 icon.name: "system-run"
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
@@ -215,7 +210,7 @@ Kirigami.ApplicationWindow {
                         color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                         placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
                         background: Rectangle {
-                            color: root.lightsOut ? root.loDark : Kirigami.Theme.backgroundColor
+                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
                             radius: Kirigami.Units.cornerRadius
                             border.width: 1
                             border.color: searchField.hovered || searchField.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
@@ -233,26 +228,7 @@ Kirigami.ApplicationWindow {
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         visible: !root.bigPicture && root.activeTab === 0
-                        onClicked: addMenu.popup(addBtn, 0, addBtn.height)
-                    }
-                    QQC2.Menu {
-                        id: addMenu
-                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
-                        QQC2.MenuItem {
-                            text: i18n("Add Windows App/Game")
-                            icon.name: "list-add"
-                            onTriggered: addDialog.openForNewWindows()
-                        }
-                        QQC2.MenuItem {
-                            text: i18n("Add Linux App/Game")
-                            icon.name: "list-add"
-                            onTriggered: addDialog.openForNewLinux()
-                        }
-                        QQC2.MenuItem {
-                            text: i18n("Import from Steam")
-                            icon.name: "steam"
-                            onTriggered: steamImportDialog.openDialog()
-                        }
+                        onClicked: addDialog.openForNew()
                     }
 
                     QQC2.ComboBox {
@@ -265,7 +241,7 @@ Kirigami.ApplicationWindow {
                         Kirigami.Theme.colorSet: Kirigami.Theme.Button
                         Kirigami.Theme.inherit: false
                         background: Rectangle {
-                            color: root.lightsOut ? root.loDark : Kirigami.Theme.backgroundColor
+                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
                             radius: Kirigami.Units.cornerRadius
                             border.width: 1
                             border.color: rommPlatformCombo.hovered || rommPlatformCombo.popup.visible ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
@@ -375,9 +351,13 @@ Kirigami.ApplicationWindow {
                         visible: modelData.enabled
                         background: Rectangle {
                             color: root.lightsOut ? (parent.checked ? root.loBase : parent.hovered ? Qt.lighter(root.loMid, 1.15) : root.loMid) : (parent.checked ? Kirigami.Theme.backgroundColor : Qt.darker(Kirigami.Theme.backgroundColor, 1.05))
+                            topLeftRadius: Kirigami.Units.cornerRadius
+                            topRightRadius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
                             Rectangle {
                                 anchors {
-                                    bottom: parent.bottom
+                                    top: parent.top
                                     left: parent.left
                                     right: parent.right
                                 }
