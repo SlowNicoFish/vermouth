@@ -21,8 +21,8 @@ ColumnLayout {
     }
 
     function setRuntimeType(type) {
-        for (var i = 0; i < runtimeCombo.model.count; i++) {
-            if (runtimeCombo.model.get(i).key === type) {
+        for (let i = 0; i < runtimeCombo.count; i++) {
+            if (runtimeCombo.valueAt(i) === type) {
                 runtimeCombo.currentIndex = i;
                 return;
             }
