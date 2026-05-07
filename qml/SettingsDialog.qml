@@ -69,7 +69,7 @@ Kirigami.PromptDialog {
     }
 
     ColumnLayout {
-        spacing: Kirigami.Units.smallSpacing
+        spacing: Kirigami.Units.mediumSpacing
 
         RuntimePicker {
             id: defaultRuntimePicker
@@ -86,6 +86,7 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Lights Out:")
                 QQC2.Switch {
                     checked: settingsManager.lightsOut
@@ -94,6 +95,7 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Background Color:")
                 opacity: settingsManager.lightsOut ? 1.0 : 0.5
 
@@ -134,23 +136,24 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("umu-run path:")
                 QQC2.TextField {
                     id: umuPathField
                     Layout.fillWidth: true
                     placeholderText: i18n("Auto-detect (umu-run in PATH)")
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: umuFilePicker.open()
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "download"
                     enabled: !umuDownloader.busy
                     QQC2.ToolTip.visible: hovered
@@ -180,13 +183,14 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Default Prefix Parent Folder:")
                 QQC2.TextField {
                     id: prefixDirField
                     Layout.fillWidth: true
                     placeholderText: protonScanner.prefixBasePath()
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: prefixDirFolderDialog.open()
                 }
@@ -198,19 +202,20 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Default App/Game Prefix:")
                 QQC2.TextField {
                     id: gamePrefixField
                     Layout.fillWidth: true
                     placeholderText: i18n("Auto-generate per app/game")
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: gamePrefixFolderDialog.open()
                 }
@@ -222,7 +227,7 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
@@ -233,6 +238,7 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("GE Proton:")
                 QQC2.Button {
                     icon.name: "folder-open"
@@ -257,7 +263,7 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
@@ -273,7 +279,7 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
@@ -287,6 +293,7 @@ Kirigami.PromptDialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Auto-download Art:")
                 QQC2.Switch {
                     id: autoDownloadSwitch
@@ -296,7 +303,7 @@ Kirigami.PromptDialog {
                 QQC2.Label {
                     text: i18n("Automatically download icon, grid, hero and logo when adding a game")
                     wrapMode: Text.WordWrap
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                     color: Kirigami.Theme.disabledTextColor
                 }
             }
@@ -312,38 +319,35 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
 
-            RowLayout {
+            QQC2.TextField {
+                id: rommUrlField
                 Kirigami.FormData.label: i18n("Server URL:")
-                QQC2.TextField {
-                    id: rommUrlField
-                    Layout.fillWidth: true
-                    placeholderText: "http://your-romm-server:3000"
-                }
+                Layout.fillWidth: true
+                placeholderText: "http://your-romm-server:3000"
             }
 
-            RowLayout {
+            QQC2.TextField {
+                id: rommApiKeyField
                 Kirigami.FormData.label: i18n("API Key:")
-                QQC2.TextField {
-                    id: rommApiKeyField
-                    Layout.fillWidth: true
-                    echoMode: TextInput.PasswordEchoOnEdit
-                    placeholderText: i18n("Your RomM API key")
-                }
+                Layout.fillWidth: true
+                echoMode: TextInput.PasswordEchoOnEdit
+                placeholderText: i18n("Your RomM API key")
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("ROM Cache Folder:")
                 QQC2.TextField {
                     id: romCacheDirField
                     Layout.fillWidth: true
                     placeholderText: i18n("Default: AppData/romm")
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: romCacheFolderDialog.open()
                 }
@@ -360,23 +364,24 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("RetroArch binary:")
                 QQC2.TextField {
                     id: retroarchPathField
                     Layout.fillWidth: true
                     placeholderText: i18n("Auto-detect")
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: retroarchFilePicker.open()
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "view-refresh"
                     QQC2.ToolTip.text: i18n("Auto-detect RetroArch")
                     QQC2.ToolTip.visible: hovered
@@ -406,7 +411,7 @@ Kirigami.PromptDialog {
                             Layout.fillWidth: true
                             readOnly: true
                         }
-                        QQC2.Button {
+                        QQC2.ToolButton {
                             icon.name: "list-remove"
                             onClicked: {
                                 settingsManager.removeExtraProtonPath(index);
@@ -429,7 +434,7 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }
@@ -462,7 +467,7 @@ Kirigami.PromptDialog {
                             Layout.fillWidth: true
                             onTextChanged: envModel.setProperty(index, "value", text)
                         }
-                        QQC2.Button {
+                        QQC2.ToolButton {
                             icon.name: "list-remove"
                             onClicked: envModel.remove(index)
                         }
@@ -485,7 +490,7 @@ Kirigami.PromptDialog {
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
             }

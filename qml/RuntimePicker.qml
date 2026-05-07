@@ -21,11 +21,16 @@ ColumnLayout {
     }
 
     function setRuntimeType(type) {
-        runtimeCombo.currentValue = type;
+        for (var i = 0; i < runtimeCombo.model.count; i++) {
+            if (runtimeCombo.model.get(i).key === type) {
+                runtimeCombo.currentIndex = i;
+                return;
+            }
+        }
     }
 
     function loadFromSettings() {
-        runtimeCombo.currentValue = settingsManager.defaultRuntimeType;
+        setRuntimeType(settingsManager.defaultRuntimeType);
         wineBinaryField.text = settingsManager.defaultWineBinary;
 
         var pp = settingsManager.defaultProtonPath;
@@ -47,7 +52,7 @@ ColumnLayout {
     }
 
     function loadFromApp(app) {
-        runtimeCombo.currentValue = app.runtimeType;
+        setRuntimeType(app.runtimeType);
         wineBinaryField.text = app.wineBinary;
         refreshProton();
 
@@ -124,6 +129,7 @@ ColumnLayout {
         }
 
         RowLayout {
+            Layout.fillWidth: true
             visible: runtimeCombo.currentValue === "proton"
             Kirigami.FormData.label: i18n("Proton Version:")
             QQC2.ComboBox {
@@ -135,19 +141,19 @@ ColumnLayout {
                 QQC2.ToolTip.visible: hovered && protonModel.count === 0
                 QQC2.ToolTip.text: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : ""
             }
-            QQC2.Button {
+            QQC2.ToolButton {
                 icon.name: "folder-open"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Open Vermouth Proton folder (%1)", protonScanner.localProtonPath())
                 onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
             }
-            QQC2.Button {
+            QQC2.ToolButton {
                 icon.name: "view-refresh"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Refresh Proton versions")
                 onClicked: root.refreshProton()
             }
-            QQC2.Button {
+            QQC2.ToolButton {
                 icon.name: "download"
                 enabled: !protonDownloader.busy
                 QQC2.ToolTip.visible: hovered
@@ -157,6 +163,7 @@ ColumnLayout {
         }
 
         RowLayout {
+            Layout.fillWidth: true
             visible: runtimeCombo.currentValue === "wine"
             Kirigami.FormData.label: i18n("Wine Binary:")
             QQC2.TextField {
@@ -164,7 +171,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 placeholderText: "/usr/bin/wine"
             }
-            QQC2.Button {
+            QQC2.ToolButton {
                 icon.name: "document-open"
                 onClicked: wineBinaryDialog.open()
             }

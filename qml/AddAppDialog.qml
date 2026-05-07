@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 
-Kirigami.Dialog {
+Kirigami.PromptDialog {
     id: dialog
     title: editMode ? i18n("Edit Game") : i18n("Add Game")
     preferredWidth: Kirigami.Units.gridUnit * 35
@@ -215,6 +215,7 @@ Kirigami.Dialog {
         Kirigami.FormLayout {
             id: topForm
             twinFormLayouts: runtimePicker.formLayout
+            Layout.fillWidth: true
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
@@ -222,6 +223,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 visible: runtimePicker.runtimeType !== "steam"
                 Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                 QQC2.TextField {
@@ -229,7 +231,7 @@ Kirigami.Dialog {
                     Layout.fillWidth: true
                     placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
@@ -243,6 +245,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 visible: runtimePicker.runtimeType === "steam"
                 Kirigami.FormData.label: i18n("Steam App ID:")
                 QQC2.TextField {
@@ -272,6 +275,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("SteamGridDB ID:")
                 QQC2.TextField {
                     id: steamGridDbIdField
@@ -282,7 +286,7 @@ Kirigami.Dialog {
                         bottom: 1
                     }
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "search"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy && !steamGridDb.autoDownloading
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Search SteamGridDB to set the ID")
@@ -290,7 +294,7 @@ Kirigami.Dialog {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                     onClicked: steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey)
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "download"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.autoDownloading && !steamGridDb.busy
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Auto-download all art from SteamGridDB")
@@ -319,17 +323,18 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Icon (optional):")
                 QQC2.TextField {
                     id: iconField
                     Layout.fillWidth: true
                     placeholderText: "/path/to/icon.png"
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: iconFileDialog.open()
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "download"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download icon from SteamGridDB")
@@ -367,11 +372,11 @@ Kirigami.Dialog {
                         Layout.fillWidth: true
                         placeholderText: "/path/to/grid.png"
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "document-open"
                         onClicked: gridFileDialog.open()
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "download"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download grid from SteamGridDB")
@@ -388,17 +393,18 @@ Kirigami.Dialog {
                 }
 
                 RowLayout {
+                    Layout.fillWidth: true
                     Kirigami.FormData.label: i18n("Hero (optional):")
                     QQC2.TextField {
                         id: heroField
                         Layout.fillWidth: true
                         placeholderText: "/path/to/hero.png"
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "document-open"
                         onClicked: heroFileDialog.open()
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "download"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download hero from SteamGridDB")
@@ -415,17 +421,18 @@ Kirigami.Dialog {
                 }
 
                 RowLayout {
+                    Layout.fillWidth: true
                     Kirigami.FormData.label: i18n("Logo (optional):")
                     QQC2.TextField {
                         id: logoField
                         Layout.fillWidth: true
                         placeholderText: "/path/to/logo.png"
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "document-open"
                         onClicked: logoFileDialog.open()
                     }
-                    QQC2.Button {
+                    QQC2.ToolButton {
                         icon.name: "download"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download logo from SteamGridDB")
@@ -453,6 +460,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 visible: runtimePicker.runtimeType === "proton"
                 Kirigami.FormData.label: i18n("Proton Prefix (optional):")
                 QQC2.TextField {
@@ -460,13 +468,14 @@ Kirigami.Dialog {
                     Layout.fillWidth: true
                     placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : dialog.prefixBasePath + "/mygame"
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: prefixFolderDialog.open()
                 }
             }
 
             RowLayout {
+                Layout.fillWidth: true
                 visible: runtimePicker.runtimeType === "wine"
                 Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
                 QQC2.TextField {
@@ -474,7 +483,7 @@ Kirigami.Dialog {
                     Layout.fillWidth: true
                     placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : "~/.wine"
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: winePrefixFolderDialog.open()
                 }
