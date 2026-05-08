@@ -100,6 +100,7 @@ Item {
                     source: frameRoot.artSource
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     visible: frameRoot.artSource !== ""
                     sourceSize: Qt.size(128, 128)
                 }
@@ -128,6 +129,7 @@ Item {
                         source: frameRoot.platformLogo
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
+                        mipmap: true
                         sourceSize: Qt.size(32, 32)
                     }
                 }
@@ -163,6 +165,7 @@ Item {
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
+                mipmap: true
                 source: frameRoot.artSource
                 visible: source !== ""
             }
@@ -179,6 +182,7 @@ Item {
                     source: frameRoot.iconFallback
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     visible: frameRoot.iconFallback !== ""
                     sourceSize: Qt.size(96, 96)
                 }
@@ -201,6 +205,7 @@ Item {
                 anchors.margins: Kirigami.Units.smallSpacing * 2
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
+                mipmap: true
                 source: frameRoot.heroLogo
             }
 
@@ -220,6 +225,7 @@ Item {
                     source: frameRoot.platformLogo
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     sourceSize: Qt.size(48, 48)
                 }
             }

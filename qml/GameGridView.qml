@@ -12,6 +12,8 @@ GridView {
     property bool lightsOut: false
     topMargin: Kirigami.Units.mediumSpacing
     bottomMargin: Kirigami.Units.mediumSpacing
+    leftMargin: Kirigami.Units.mediumSpacing
+    rightMargin: Kirigami.Units.mediumSpacing
 
     Settings {
         id: viewSettings
@@ -26,17 +28,18 @@ GridView {
         base *= scaleFactor;
         if (width <= 0 || count <= 0)
             return base;
-        var cols = Math.max(1, Math.floor(width / base));
+        var trueWidth = (width - 2 * leftMargin);
+        var cols = Math.max(1, Math.floor(trueWidth / base));
         if (count <= cols)
-            return Math.min(width / count, base);
-        return Math.max(base, width / cols);
+            return Math.floor(Math.min(trueWidth / count, base));
+        return Math.floor(Math.max(base, trueWidth / cols));
     }
     cellHeight: {
         var baseH = viewType === "hero" ? 143 : viewType === "grid" ? 300 : (showNames ? 140 : 120);
         baseH *= scaleFactor;
         var baseW = viewType === "hero" ? 306 : viewType === "grid" ? 200 : 140;
         baseW *= scaleFactor;
-        return cellWidth * (baseH / baseW);
+        return Math.floor(cellWidth * (baseH / baseW));
     }
 
     clip: true
