@@ -316,8 +316,13 @@ void Launcher::launch(const QString &binary,
             baseCmd += QStringLiteral(" ") + shellQuote(exePath);
 
         QString opts = launchOptions.trimmed();
-        QString fullCmd =
-            opts.contains(QStringLiteral("%command%")) ? QString(opts).replace(QStringLiteral("%command%"), baseCmd) : opts + QStringLiteral(" ") + baseCmd;
+        QString fullCmd;
+        if (opts.contains(QStringLiteral("%command%")))
+            fullCmd = QString(opts).replace(QStringLiteral("%command%"), baseCmd);
+        else if (opts.startsWith(QLatin1Char('-')))
+            fullCmd = baseCmd + QLatin1Char(' ') + opts;
+        else
+            fullCmd = opts + QLatin1Char(' ') + baseCmd;
 
         proc->start(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), fullCmd});
     } else {
