@@ -34,6 +34,19 @@ void SettingsManager::setDefaultGamePrefix(const QString &path)
     Q_EMIT defaultGamePrefixChanged();
 }
 
+QString SettingsManager::defaultWinePrefix() const
+{
+    return m_settings.value(QStringLiteral("defaultWinePrefix")).toString();
+}
+
+void SettingsManager::setDefaultWinePrefix(const QString &path)
+{
+    if (defaultWinePrefix() == path)
+        return;
+    m_settings.setValue(QStringLiteral("defaultWinePrefix"), path);
+    Q_EMIT defaultWinePrefixChanged();
+}
+
 QStringList SettingsManager::extraProtonPaths() const
 {
     return m_settings.value(QStringLiteral("extraProtonPaths")).toStringList();
