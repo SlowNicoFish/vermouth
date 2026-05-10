@@ -100,12 +100,14 @@ GameGridView {
             }
             QQC2.MenuItem {
                 visible: cardFrame.runtimeType === "steam" && cardFrame.steamAppId > 0
+                height: visible ? implicitHeight : 0
                 text: i18n("View in Steam")
                 icon.name: "steam"
                 onTriggered: Qt.openUrlExternally("steam://nav/games/details/" + cardFrame.steamAppId)
             }
             QQC2.MenuItem {
                 visible: cardFrame.runtimeType === "retroarch"
+                height: visible ? implicitHeight : 0
                 text: i18n("Change Core…")
                 icon.name: "media-record"
                 onTriggered: {
@@ -118,6 +120,7 @@ GameGridView {
             }
             QQC2.MenuItem {
                 visible: cardFrame.runtimeType === "retroarch"
+                height: visible ? implicitHeight : 0
                 text: i18n("Copy Launch Command")
                 icon.name: "edit-copy"
                 onTriggered: {
@@ -136,6 +139,7 @@ GameGridView {
             }
             QQC2.MenuItem {
                 visible: cardFrame.runtimeType !== "steam"
+                height: visible ? implicitHeight : 0
                 text: i18n("Launch with logging")
                 icon.name: "text-x-log"
                 onTriggered: {
@@ -149,6 +153,7 @@ GameGridView {
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
                 visible: cardFrame.hasPrefix
+                height: visible ? implicitHeight : 0
                 text: i18n("Run another EXE in this prefix")
                 icon.name: "system-run"
                 onTriggered: {
@@ -158,6 +163,7 @@ GameGridView {
             }
             QQC2.MenuSeparator {
                 visible: cardFrame.hasPrefix
+                height: visible ? implicitHeight : 0
             }
             QQC2.MenuItem {
                 text: i18n("Create start menu entry")
@@ -178,7 +184,7 @@ GameGridView {
             QQC2.Menu {
                 enabled: cardFrame.hasPrefix
                 title: i18n("&Wine Utilities")
-                icon.name: "wine"
+                icon.name: "wine-symbolic"
 
                 QQC2.MenuItem {
                     text: i18n("Run Winecfg")
@@ -198,7 +204,7 @@ GameGridView {
                 }
                 QQC2.MenuItem {
                     text: i18n("Run Winetricks")
-                    icon.name: "tools"
+                    icon.name: "tools-symbolic"
                     onTriggered: {
                         if (!launcher.isWinetricksAvailable()) {
                             winetricksNotFoundDialog.open();
@@ -217,6 +223,7 @@ GameGridView {
             }
             QQC2.MenuItem {
                 visible: cardFrame.hasPrefix
+                height: visible ? implicitHeight : 0
                 text: i18n("Open prefix folder")
                 icon.name: "folder-open"
                 onTriggered: {
@@ -243,6 +250,7 @@ GameGridView {
             }
             QQC2.MenuItem {
                 visible: cardFrame.hasPrefix
+                height: visible ? implicitHeight : 0
                 text: i18n("Remove and Delete Prefix")
                 icon.name: "edit-delete"
                 onTriggered: {
