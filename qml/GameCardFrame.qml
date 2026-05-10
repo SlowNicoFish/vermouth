@@ -32,11 +32,11 @@ Item {
     Rectangle {
         id: cardBg
         anchors.fill: parent
-        anchors.margins: Kirigami.Units.smallSpacing
+        anchors.margins: Kirigami.Units.mediumSpacing
         radius: Kirigami.Units.cornerRadius
         color: "transparent"
         layer.enabled: frameRoot.gv && frameRoot.gv.viewType !== "icon"
-        scale: frameRoot.isSelected ? 1.06 : 1.0
+        scale: frameRoot.isSelected ? 1.03 : 1.0
         z: frameRoot.isSelected ? 2 : 0
 
         Behavior on scale {
@@ -100,6 +100,7 @@ Item {
                     source: frameRoot.artSource
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     visible: frameRoot.artSource !== ""
                     sourceSize: Qt.size(128, 128)
                 }
@@ -128,6 +129,7 @@ Item {
                         source: frameRoot.platformLogo
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
+                        mipmap: true
                         sourceSize: Qt.size(32, 32)
                     }
                 }
@@ -163,6 +165,7 @@ Item {
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
+                mipmap: true
                 source: frameRoot.artSource
                 visible: source !== ""
             }
@@ -179,6 +182,7 @@ Item {
                     source: frameRoot.iconFallback
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     visible: frameRoot.iconFallback !== ""
                     sourceSize: Qt.size(96, 96)
                 }
@@ -201,6 +205,7 @@ Item {
                 anchors.margins: Kirigami.Units.smallSpacing * 2
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
+                mipmap: true
                 source: frameRoot.heroLogo
             }
 
@@ -220,6 +225,7 @@ Item {
                     source: frameRoot.platformLogo
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    mipmap: true
                     sourceSize: Qt.size(48, 48)
                 }
             }
@@ -253,7 +259,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            radius: Kirigami.Units.cornerRadius
+            radius: 1
             color: "transparent"
             border.color: frameRoot.isSelected ? Kirigami.Theme.highlightColor : mouseArea.containsMouse ? Qt.darker(Kirigami.Theme.highlightColor, 1.5) : "transparent"
             border.width: frameRoot.isSelected ? 3 : mouseArea.containsMouse ? 1 : 0
@@ -276,7 +282,7 @@ Item {
         Rectangle {
             id: launchFlash
             anchors.fill: parent
-            radius: Kirigami.Units.cornerRadius
+            radius: 1
             color: Kirigami.Theme.highlightColor
             opacity: 0
             z: 10

@@ -1,5 +1,6 @@
 import QtQuick
 import QtCore
+import org.kde.kirigami as Kirigami
 
 GridView {
     id: gridView
@@ -9,6 +10,10 @@ GridView {
     property bool showNames: true
     property bool active: true
     property bool lightsOut: false
+    topMargin: Kirigami.Units.mediumSpacing
+    bottomMargin: Kirigami.Units.mediumSpacing
+    leftMargin: Kirigami.Units.mediumSpacing
+    rightMargin: Kirigami.Units.mediumSpacing
 
     Settings {
         id: viewSettings
@@ -19,21 +24,22 @@ GridView {
     }
 
     cellWidth: {
-        var base = viewType === "hero" ? 300 : viewType === "grid" ? 155 : 140;
+        var base = viewType === "hero" ? 306 : viewType === "grid" ? 200 : 140;
         base *= scaleFactor;
         if (width <= 0 || count <= 0)
             return base;
-        var cols = Math.max(1, Math.floor(width / base));
+        var trueWidth = (width - 2 * leftMargin);
+        var cols = Math.max(1, Math.floor(trueWidth / base));
         if (count <= cols)
-            return Math.min(width / count, base * 2);
-        return Math.max(base, width / cols);
+            return Math.floor(Math.min(trueWidth / count, base));
+        return Math.floor(Math.max(base, trueWidth / cols));
     }
     cellHeight: {
-        var baseH = viewType === "hero" ? (showNames ? 140 : 116) : viewType === "grid" ? (showNames ? 250 : 232) : (showNames ? 160 : 120);
+        var baseH = viewType === "hero" ? 143 : viewType === "grid" ? 300 : (showNames ? 140 : 120);
         baseH *= scaleFactor;
-        var baseW = viewType === "hero" ? 300 : viewType === "grid" ? 155 : 140;
+        var baseW = viewType === "hero" ? 306 : viewType === "grid" ? 200 : 140;
         baseW *= scaleFactor;
-        return cellWidth * (baseH / baseW);
+        return Math.floor(cellWidth * (baseH / baseW));
     }
 
     clip: true

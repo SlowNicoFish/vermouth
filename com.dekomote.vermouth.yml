@@ -12,6 +12,10 @@ finish-args:
   - --device=dri
   - --device=input
   - --socket=pulseaudio
+  - --allow=per-app-dev-shm
+  - --filesystem=home
+  - --allow=devel
+  - --allow=per-app-dev-shm
 
 modules:
   - name: SDL2

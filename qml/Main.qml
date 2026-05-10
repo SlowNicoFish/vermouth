@@ -62,17 +62,12 @@ Kirigami.ApplicationWindow {
         actions: [
             Kirigami.Action {
                 id: firstDrawerAction
-                text: i18n("Add &Windows App/Game")
+                text: i18n("Add a Game")
                 icon.name: "list-add"
-                onTriggered: addDialog.openForNewWindows()
+                onTriggered: addDialog.openForNew()
             },
             Kirigami.Action {
-                text: i18n("Add &Linux App/Game")
-                icon.name: "list-add"
-                onTriggered: addDialog.openForNewLinux()
-            },
-            Kirigami.Action {
-                text: i18n("Run &Standalone EXE")
+                text: i18n("Run a Standalone EXE")
                 icon.name: "system-run"
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
@@ -210,7 +205,16 @@ Kirigami.ApplicationWindow {
                             else
                                 rommView.applySearch(text);
                         }
-                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                        Kirigami.Theme.colorSet: Kirigami.Theme.View
+                        Kirigami.Theme.inherit: false
+                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
+                        background: Rectangle {
+                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+                            radius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: searchField.hovered || searchField.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                        }
                     }
 
                     Item {
@@ -224,26 +228,7 @@ Kirigami.ApplicationWindow {
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         visible: !root.bigPicture && root.activeTab === 0
-                        onClicked: addMenu.popup(addBtn, 0, addBtn.height)
-                    }
-                    QQC2.Menu {
-                        id: addMenu
-                        closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutside
-                        QQC2.MenuItem {
-                            text: i18n("Add Windows App/Game")
-                            icon.name: "list-add"
-                            onTriggered: addDialog.openForNewWindows()
-                        }
-                        QQC2.MenuItem {
-                            text: i18n("Add Linux App/Game")
-                            icon.name: "list-add"
-                            onTriggered: addDialog.openForNewLinux()
-                        }
-                        QQC2.MenuItem {
-                            text: i18n("Import from Steam")
-                            icon.name: "steam"
-                            onTriggered: steamImportDialog.openDialog()
-                        }
+                        onClicked: addDialog.openForNew()
                     }
 
                     QQC2.ComboBox {
@@ -253,7 +238,22 @@ Kirigami.ApplicationWindow {
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
                         displayText: count > 0 ? currentText : i18n("Select platform…")
-                        Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                        Kirigami.Theme.colorSet: Kirigami.Theme.Button
+                        Kirigami.Theme.inherit: false
+                        background: Rectangle {
+                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+                            radius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: rommPlatformCombo.hovered || rommPlatformCombo.popup.visible ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                        }
+                        contentItem: Text {
+                            leftPadding: Kirigami.Units.smallSpacing * 2
+                            rightPadding: (rommPlatformCombo.indicator ? rommPlatformCombo.indicator.width : 0) + Kirigami.Units.smallSpacing
+                            text: rommPlatformCombo.displayText
+                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideRight
+                        }
 
                         onModelChanged: {
                             var platforms = rommView.platforms;
@@ -309,7 +309,6 @@ Kirigami.ApplicationWindow {
                 palette.base: root.lightsOut ? root.loBase : undefined
                 palette.text: root.lightsOut ? root.loText : undefined
                 palette.placeholderText: root.lightsOut ? root.loSubText : undefined
-                palette.brightText: root.lightsOut ? root.loText : undefined
 
                 property var tabs: [
                     {
@@ -350,6 +349,29 @@ Kirigami.ApplicationWindow {
                         text: modelData.name
                         enabled: modelData.enabled
                         visible: modelData.enabled
+                        background: Rectangle {
+                            color: root.lightsOut ? (parent.checked ? root.loBase : parent.hovered ? Qt.lighter(root.loMid, 1.15) : root.loMid) : (parent.checked ? Kirigami.Theme.backgroundColor : Qt.darker(Kirigami.Theme.backgroundColor, 1.05))
+                            topLeftRadius: Kirigami.Units.cornerRadius
+                            topRightRadius: Kirigami.Units.cornerRadius
+                            border.width: 1
+                            border.color: Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                            Rectangle {
+                                anchors {
+                                    top: parent.top
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                height: 2
+                                color: root.lightsOut ? root.loHighlight : Kirigami.Theme.highlightColor
+                                visible: parent.parent.checked
+                            }
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
                 }
             }
@@ -482,15 +504,15 @@ Kirigami.ApplicationWindow {
                     icon.name: "zoom-out"
                     focusPolicy: Qt.NoFocus
                     flat: true
-                    enabled: gridView.scaleFactor > 0.5
-                    onClicked: gridView.scaleFactor = Math.max(0.5, gridView.scaleFactor - 0.25)
+                    enabled: gridView.scaleFactor > 0.8
+                    onClicked: gridView.scaleFactor = Math.max(0.8, gridView.scaleFactor - 0.2)
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
                 QQC2.Slider {
                     focusPolicy: Qt.NoFocus
-                    from: 0.5
-                    to: 2.0
-                    stepSize: 0.25
+                    from: 0.8
+                    to: 1.8
+                    stepSize: 0.2
                     value: gridView.scaleFactor
                     onMoved: gridView.scaleFactor = value
                     implicitWidth: Kirigami.Units.gridUnit * 6
@@ -499,8 +521,8 @@ Kirigami.ApplicationWindow {
                     icon.name: "zoom-in"
                     focusPolicy: Qt.NoFocus
                     flat: true
-                    enabled: gridView.scaleFactor < 2.0
-                    onClicked: gridView.scaleFactor = Math.min(2.0, gridView.scaleFactor + 0.25)
+                    enabled: gridView.scaleFactor < 1.8
+                    onClicked: gridView.scaleFactor = Math.min(1.8, gridView.scaleFactor + 0.2)
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
             }
