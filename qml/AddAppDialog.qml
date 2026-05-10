@@ -706,32 +706,32 @@ Kirigami.Dialog {
     Connections {
         target: launcher
         function onRunningExePathsChanged() {
-            if (dialog.installerRunning && dialog.installerExePath !== "") {
-                if (dialog.installerPid && dialog.installerPid > 0) {
-                    let currentPid = launcher.runningPidForExe(dialog.installerExePath);
-                    console.log("Current PID for installer exe:", currentPid);
-                    if (currentPid !== dialog.installerPid) {
-                        dialog.installerRunning = false;
-                        dialog.installerExePath = "";
-                        dialog.installerPid = 0;
-                        if (dialog.offerExePickAfterInstaller) {
-                            dialog.offerExePickAfterInstaller = false;
-                            exeFileDialog.currentFolder = "file://" + dialog.resolvePrefix();
-                            exeFileDialog.open();
-                        }
-                    }
-                } else {
-                    let stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
-                    if (!stillRunning) {
-                        dialog.installerRunning = false;
-                        dialog.installerExePath = "";
-                        if (dialog.offerExePickAfterInstaller) {
-                            dialog.offerExePickAfterInstaller = false;
-                            exeFileDialog.currentFolder = "file://" + dialog.resolvePrefix();
-                            exeFileDialog.open();
-                        }
-                    }
-                }
+            if (!dialog.installerRunning || dialog.installerExePath === "")
+                return;
+
+            let installerFinished = false;
+
+            if (dialog.installerPid && dialog.installerPid > 0) {
+                let currentPid = launcher.runningPidForExe(dialog.installerExePath);
+                if (currentPid !== dialog.installerPid)
+                    installerFinished = true;
+            } else {
+                let stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
+                if (!stillRunning)
+                    installerFinished = true;
+            }
+
+            if (!installerFinished)
+                return;
+
+            dialog.installerRunning = false;
+            dialog.installerExePath = "";
+            dialog.installerPid = 0;
+
+            if (dialog.offerExePickAfterInstaller) {
+                dialog.offerExePickAfterInstaller = false;
+                exeFileDialog.currentFolder = "file://" + dialog.resolvePrefix();
+                exeFileDialog.open();
             }
         }
     }
