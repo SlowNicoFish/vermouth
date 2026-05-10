@@ -95,33 +95,30 @@ Kirigami.Dialog {
             winePrefixField.text = resolvePrefix();
     }
 
-    function runInstallerInPrefix() {
-        if (runtimePicker.runtimeType === "native")
-            return;
-        if (exeField.text.trim() === "") {
-            pendingInstallerRun = true;
-            exeFileDialog.open();
-            return;
-        }
+    function cleanupInstaller() {
+        dialog.pendingInstallerRun = false;
+        dialog.offerExePickAfterInstaller = false;
+    }
 
-        installerExePath = exeField.text;
+    function runInstallerInPrefix() {
+        if (!["proton", "wine"].includes(runtimePicker.runtimeType))
+            return;
+
+        pendingInstallerRun = true;
         installerRunning = true;
 
-        var pid = launcher.runInPrefix({
-            "name": nameField.text,
-            "runtimeType": runtimePicker.runtimeType,
-            "protonPath": runtimePicker.protonPath,
-            "protonPrefix": resolvePrefix(),
-            "wineBinary": runtimePicker.wineBinary,
-            "winePrefix": resolvePrefix(),
-            "launchOptions": "",
-            "enableLogging": false
-        }, exeField.text);
+        let resolvedPrefix = resolvePrefix();
 
-        if (pid && pid > 0)
-            installerPid = pid;
-        else
-            installerPid = 0;
+        installerPid = launcher.runInPrefix({
+            name: nameField.text,
+            runtimeType: runtimePicker.runtimeType,
+            protonPath: runtimePicker.protonPath,
+            protonPrefix: resolvedPrefix,
+            wineBinary: runtimePicker.wineBinary,
+            winePrefix: resolvedPrefix,
+            launchOptions: "",
+            enableLogging: false
+        }, installerExePath) || 0;
     }
 
     function openForNewWithExe(exePath) {
@@ -153,6 +150,7 @@ Kirigami.Dialog {
         pendingAutoDownload = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
+        installerExePath = "";
         runtimePicker.loadFromApp(app);
         dialog.open();
     }
@@ -268,14 +266,14 @@ Kirigami.Dialog {
                     icon.name: "document-open"
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
-                QQC2.Button {
-                    visible: runtimePicker.runtimeType !== "native"
-                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType === "proton" && runtimePicker.protonPath !== ""
+                QQC2.ToolButton {
+                    visible: runtimePicker.runtimeType === "wine" || runtimePicker.runtimeType === "proton"
+                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType !== "" && runtimePicker.protonPath !== ""
                     icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run"
                     QQC2.ToolTip.text: dialog.installerRunning ? i18n("Installing...") : runtimePicker.runtimeType !== "proton" ? i18n("Select Proton runtime first") : runtimePicker.protonPath === "" ? i18n("Select a Proton version first") : i18n("Run installer in prefix")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                    onClicked: runInstallerInPrefix()
+                    onClicked: installerFileDialog.open()
                 }
             }
 
@@ -562,23 +560,30 @@ Kirigami.Dialog {
 
     FileDialog {
         id: exeFileDialog
-        title: dialog.pendingInstallerRun ? i18n("Select installer (exe)") : i18n("Select Executable")
+        title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.applyExePath(path);
-            if (dialog.pendingInstallerRun) {
-                dialog.pendingInstallerRun = false;
-                dialog.offerExePickAfterInstaller = false;
-                dialog.runInstallerInPrefix();
-                if (dialog.installerPid && dialog.installerPid > 0)
-                    dialog.offerExePickAfterInstaller = true;
-            }
+        }
+    }
+
+    FileDialog {
+        id: installerFileDialog
+        title: i18n("Select installer (exe)")
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
+
+        onAccepted: {
+            dialog.installerExePath = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            dialog.cleanupInstaller();
+            dialog.runInstallerInPrefix();
+            if (dialog.installerPid && dialog.installerPid > 0)
+                dialog.offerExePickAfterInstaller = true;
         }
         onRejected: {
-            dialog.pendingInstallerRun = false;
-            dialog.offerExePickAfterInstaller = false;
+            dialog.cleanupInstaller();
         }
     }
 
