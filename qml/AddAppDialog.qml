@@ -560,7 +560,7 @@ Kirigami.Dialog {
     FolderDialog {
         id: winePrefixFolderDialog
         title: i18n("Select Wine Prefix Folder")
-        currentFolder: "file://" + dialog.prefixBasePath
+        currentFolder: "file://" + protonScanner.winePrefixBasePath()
         onAccepted: winePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
