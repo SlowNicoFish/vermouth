@@ -15,6 +15,7 @@ Kirigami.PromptDialog {
         settingsManager.setUmuPath(umuPathField.text);
         settingsManager.setDefaultPrefixDir(prefixDirField.text);
         settingsManager.setDefaultGamePrefix(gamePrefixField.text);
+        settingsManager.setDefaultWinePrefix(winePrefixField.text);
         settingsManager.setSteamGridDbApiKey(steamGridDbKeyField.text);
         settingsManager.setRommServerUrl(rommUrlField.text.trim().replace(/\/+$/, ""));
         settingsManager.setRommApiKey(rommApiKeyField.text);
@@ -35,6 +36,7 @@ Kirigami.PromptDialog {
         umuPathField.text = settingsManager.umuPath;
         prefixDirField.text = settingsManager.defaultPrefixDir;
         gamePrefixField.text = settingsManager.defaultGamePrefix;
+        winePrefixField.text = settingsManager.defaultWinePrefix;
         steamGridDbKeyField.text = settingsManager.steamGridDbApiKey;
         rommUrlField.text = settingsManager.rommServerUrl;
         rommApiKeyField.text = settingsManager.rommApiKey;
@@ -209,11 +211,11 @@ Kirigami.PromptDialog {
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Default App/Game Prefix:")
+                Kirigami.FormData.label: i18n("Default Proton Prefix:")
                 QQC2.TextField {
                     id: gamePrefixField
                     Layout.fillWidth: true
-                    placeholderText: i18n("Auto-generate per app/game")
+                    placeholderText: i18n("Auto-generate per Proton game")
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open"
@@ -223,7 +225,32 @@ Kirigami.PromptDialog {
 
             QQC2.Label {
                 Kirigami.FormData.label: ""
-                text: i18n("Set this if you want all apps and games to share a single prefix (e.g. one Wine/Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefixe per game, but you have to set it explicitly.")
+                text: i18n("Set this if you want all Proton games to share a single prefix (e.g. one Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefix per game, but you have to set it explicitly.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Default Wine Prefix:")
+                QQC2.TextField {
+                    id: winePrefixField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Auto-generate per Wine game")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open"
+                    onClicked: winePrefixFolderDialog.open()
+                }
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Set this if you want all Wine games to share a single prefix. Leave empty to auto-generate a separate Wine prefix per game under the 'wines/' subfolder.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
@@ -516,6 +543,13 @@ Kirigami.PromptDialog {
         title: i18n("Select Default App/Game Prefix")
         currentFolder: "file://" + protonScanner.prefixBasePath()
         onAccepted: gamePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: winePrefixFolderDialog
+        title: i18n("Select Default Wine Prefix")
+        currentFolder: "file://" + protonScanner.winePrefixBasePath()
+        onAccepted: winePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     FolderDialog {

@@ -12,6 +12,7 @@ public:
 
     Q_INVOKABLE QStringList findProtonVersions() const;
     Q_INVOKABLE QString prefixBasePath() const;
+    Q_INVOKABLE QString winePrefixBasePath() const;
     Q_INVOKABLE QString localProtonPath() const;
     Q_INVOKABLE QString localAssetsPath() const;
     Q_INVOKABLE QString homePath() const;

@@ -83,12 +83,10 @@ Kirigami.Dialog {
             winePrefixField.text = "";
             return;
         }
-        var defaultPrefix = settingsManager.defaultGamePrefix;
-        var resolvedPrefix = defaultPrefix !== "" ? defaultPrefix : dialog.prefixBasePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
         if (protonPrefixField.text === "")
-            protonPrefixField.text = resolvedPrefix;
+            protonPrefixField.text = resolvePrefix("proton");
         if (winePrefixField.text === "")
-            winePrefixField.text = resolvedPrefix;
+            winePrefixField.text = resolvePrefix("wine");
     }
 
     function openForNewWithExe(exePath) {
@@ -148,16 +146,17 @@ Kirigami.Dialog {
         return true;
     }
 
-    function resolvePrefix() {
-        var defaultPrefix = settingsManager.defaultGamePrefix;
-        return defaultPrefix !== "" ? defaultPrefix : dialog.prefixBasePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+    function resolvePrefix(runtimeType) {
+        var defaultPrefix = runtimeType === "wine" ? settingsManager.defaultWinePrefix : settingsManager.defaultGamePrefix;
+        var basePath = runtimeType === "wine" ? protonScanner.winePrefixBasePath() : dialog.prefixBasePath;
+        return defaultPrefix !== "" ? defaultPrefix : basePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
     }
 
     function doSave() {
         var rt = runtimePicker.runtimeType;
         var protonPath = runtimePicker.protonPath;
-        var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix();
-        var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix();
+        var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix("proton");
+        var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix("wine");
         var sgdbId = parseInt(steamGridDbIdField.text);
         if (isNaN(sgdbId) || sgdbId < 0)
             sgdbId = 0;
@@ -484,7 +483,7 @@ Kirigami.Dialog {
                 QQC2.TextField {
                     id: winePrefixField
                     Layout.fillWidth: true
-                    placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : "~/.wine"
+                    placeholderText: settingsManager.defaultWinePrefix !== "" ? settingsManager.defaultWinePrefix : protonScanner.winePrefixBasePath() + "/mygame"
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open"
@@ -561,7 +560,7 @@ Kirigami.Dialog {
     FolderDialog {
         id: winePrefixFolderDialog
         title: i18n("Select Wine Prefix Folder")
-        currentFolder: "file://" + dialog.prefixBasePath
+        currentFolder: "file://" + protonScanner.winePrefixBasePath()
         onAccepted: winePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 

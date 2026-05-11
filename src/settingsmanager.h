@@ -9,6 +9,7 @@ class SettingsManager : public QObject
     Q_OBJECT
     Q_PROPERTY(QString defaultPrefixDir READ defaultPrefixDir WRITE setDefaultPrefixDir NOTIFY defaultPrefixDirChanged)
     Q_PROPERTY(QString defaultGamePrefix READ defaultGamePrefix WRITE setDefaultGamePrefix NOTIFY defaultGamePrefixChanged)
+    Q_PROPERTY(QString defaultWinePrefix READ defaultWinePrefix WRITE setDefaultWinePrefix NOTIFY defaultWinePrefixChanged)
     Q_PROPERTY(QStringList extraProtonPaths READ extraProtonPaths WRITE setExtraProtonPaths NOTIFY extraProtonPathsChanged)
     Q_PROPERTY(QString defaultRuntimeType READ defaultRuntimeType WRITE setDefaultRuntimeType NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(QString defaultProtonPath READ defaultProtonPath WRITE setDefaultProtonPath NOTIFY defaultRuntimeChanged)
@@ -34,6 +35,9 @@ public:
 
     QString defaultGamePrefix() const;
     Q_INVOKABLE void setDefaultGamePrefix(const QString &path);
+
+    QString defaultWinePrefix() const;
+    Q_INVOKABLE void setDefaultWinePrefix(const QString &path);
 
     QStringList extraProtonPaths() const;
     void setExtraProtonPaths(const QStringList &paths);
@@ -94,6 +98,7 @@ public:
 Q_SIGNALS:
     void defaultPrefixDirChanged();
     void defaultGamePrefixChanged();
+    void defaultWinePrefixChanged();
     void extraProtonPathsChanged();
     void defaultRuntimeChanged();
     void drawerPinnedChanged();
