@@ -211,11 +211,11 @@ Kirigami.PromptDialog {
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Default App/Game Prefix:")
+                Kirigami.FormData.label: i18n("Default Proton Prefix:")
                 QQC2.TextField {
                     id: gamePrefixField
                     Layout.fillWidth: true
-                    placeholderText: i18n("Auto-generate per app/game")
+                    placeholderText: i18n("Auto-generate per Proton game")
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open"
@@ -225,7 +225,7 @@ Kirigami.PromptDialog {
 
             QQC2.Label {
                 Kirigami.FormData.label: ""
-                text: i18n("Set this if you want all apps and games to share a single prefix (e.g. one Wine/Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefixe per game, but you have to set it explicitly.")
+                text: i18n("Set this if you want all Proton games to share a single prefix (e.g. one Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefix per game, but you have to set it explicitly.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
@@ -240,7 +240,7 @@ Kirigami.PromptDialog {
                 QQC2.TextField {
                     id: winePrefixField
                     Layout.fillWidth: true
-                    placeholderText: i18n("Auto-generate per wine game")
+                    placeholderText: i18n("Auto-generate per Wine game")
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open"
