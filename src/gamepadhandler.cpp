@@ -154,7 +154,8 @@ void GamepadHandler::pollEvents()
                 m_selectHeld = true;
                 if (m_l2WasPressed)
                     Q_EMIT selectL2Pressed();
-                Q_EMIT selectPressed();
+                else
+                    Q_EMIT selectPressed();
                 break;
             case SDL_CONTROLLER_BUTTON_START:
                 Q_EMIT startPressed();
@@ -228,7 +229,8 @@ void GamepadHandler::pollEvents()
                 if (pressed && !m_l2WasPressed) {
                     if (m_selectHeld)
                         Q_EMIT selectL2Pressed();
-                    Q_EMIT l2Pressed();
+                    else
+                        Q_EMIT l2Pressed();
                 }
                 m_l2WasPressed = pressed;
                 break;
