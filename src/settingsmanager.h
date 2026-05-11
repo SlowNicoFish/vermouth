@@ -10,6 +10,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString defaultPrefixDir READ defaultPrefixDir WRITE setDefaultPrefixDir NOTIFY defaultPrefixDirChanged)
     Q_PROPERTY(QString defaultGamePrefix READ defaultGamePrefix WRITE setDefaultGamePrefix NOTIFY defaultGamePrefixChanged)
     Q_PROPERTY(QString defaultWinePrefix READ defaultWinePrefix WRITE setDefaultWinePrefix NOTIFY defaultWinePrefixChanged)
+    Q_PROPERTY(QString gamepadFullscreenButton READ gamepadFullscreenButton WRITE setGamepadFullscreenButton NOTIFY gamepadFullscreenButtonChanged)
     Q_PROPERTY(QStringList extraProtonPaths READ extraProtonPaths WRITE setExtraProtonPaths NOTIFY extraProtonPathsChanged)
     Q_PROPERTY(QString defaultRuntimeType READ defaultRuntimeType WRITE setDefaultRuntimeType NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(QString defaultProtonPath READ defaultProtonPath WRITE setDefaultProtonPath NOTIFY defaultRuntimeChanged)
@@ -38,6 +39,9 @@ public:
 
     QString defaultWinePrefix() const;
     Q_INVOKABLE void setDefaultWinePrefix(const QString &path);
+
+    QString gamepadFullscreenButton() const;
+    Q_INVOKABLE void setGamepadFullscreenButton(const QString &button);
 
     QStringList extraProtonPaths() const;
     void setExtraProtonPaths(const QStringList &paths);
@@ -99,6 +103,7 @@ Q_SIGNALS:
     void defaultPrefixDirChanged();
     void defaultGamePrefixChanged();
     void defaultWinePrefixChanged();
+    void gamepadFullscreenButtonChanged();
     void extraProtonPathsChanged();
     void defaultRuntimeChanged();
     void drawerPinnedChanged();

@@ -80,6 +80,7 @@ GamepadHandler::GamepadHandler(QObject *parent)
     m_axisRepeatTimer = new QTimer(this);
     m_axisRepeatTimer->setSingleShot(false);
     connect(m_axisRepeatTimer, &QTimer::timeout, this, &GamepadHandler::onAxisRepeat);
+
 #endif
 }
 
@@ -150,6 +151,9 @@ void GamepadHandler::pollEvents()
                 Q_EMIT yPressed();
                 break;
             case SDL_CONTROLLER_BUTTON_BACK:
+                m_selectHeld = true;
+                if (m_l2WasPressed)
+                    Q_EMIT selectL2Pressed();
                 Q_EMIT selectPressed();
                 break;
             case SDL_CONTROLLER_BUTTON_START:
@@ -176,6 +180,33 @@ void GamepadHandler::pollEvents()
             case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
                 Q_EMIT r1Pressed();
                 break;
+            case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+                m_l3Held = true;
+                if (m_r3Held)
+                    Q_EMIT l3r3Pressed();
+                else
+                    Q_EMIT l3Pressed();
+                break;
+            case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+                m_r3Held = true;
+                if (m_l3Held)
+                    Q_EMIT l3r3Pressed();
+                else
+                    Q_EMIT r3Pressed();
+                break;
+            }
+            break;
+        case SDL_CONTROLLERBUTTONUP:
+            switch (ev.cbutton.button) {
+            case SDL_CONTROLLER_BUTTON_BACK:
+                m_selectHeld = false;
+                break;
+            case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+                m_l3Held = false;
+                break;
+            case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+                m_r3Held = false;
+                break;
             }
             break;
         case SDL_CONTROLLERAXISMOTION:
@@ -194,8 +225,11 @@ void GamepadHandler::pollEvents()
                 break;
             case SDL_CONTROLLER_AXIS_TRIGGERLEFT: {
                 bool pressed = ev.caxis.value > 16000;
-                if (pressed && !m_l2WasPressed)
+                if (pressed && !m_l2WasPressed) {
+                    if (m_selectHeld)
+                        Q_EMIT selectL2Pressed();
                     Q_EMIT l2Pressed();
+                }
                 m_l2WasPressed = pressed;
                 break;
             }

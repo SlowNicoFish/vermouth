@@ -47,6 +47,19 @@ void SettingsManager::setDefaultWinePrefix(const QString &path)
     Q_EMIT defaultWinePrefixChanged();
 }
 
+QString SettingsManager::gamepadFullscreenButton() const
+{
+    return m_settings.value(QStringLiteral("gamepadFullscreenButton"), QStringLiteral("guide")).toString();
+}
+
+void SettingsManager::setGamepadFullscreenButton(const QString &button)
+{
+    if (gamepadFullscreenButton() == button)
+        return;
+    m_settings.setValue(QStringLiteral("gamepadFullscreenButton"), button);
+    Q_EMIT gamepadFullscreenButtonChanged();
+}
+
 QStringList SettingsManager::extraProtonPaths() const
 {
     return m_settings.value(QStringLiteral("extraProtonPaths")).toStringList();

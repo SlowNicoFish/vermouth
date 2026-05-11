@@ -718,7 +718,18 @@ Kirigami.ApplicationWindow {
         }
 
         function onGuidePressed() {
-            bigPictureAction.trigger();
+            if (settingsManager.gamepadFullscreenButton === "guide")
+                bigPictureAction.trigger();
+        }
+
+        function onSelectL2Pressed() {
+            if (settingsManager.gamepadFullscreenButton === "selectl2")
+                bigPictureAction.trigger();
+        }
+
+        function onL3r3Pressed() {
+            if (settingsManager.gamepadFullscreenButton === "l3r3")
+                bigPictureAction.trigger();
         }
 
         function onDpadUp() {

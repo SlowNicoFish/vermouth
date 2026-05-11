@@ -16,6 +16,7 @@ Kirigami.PromptDialog {
         settingsManager.setDefaultPrefixDir(prefixDirField.text);
         settingsManager.setDefaultGamePrefix(gamePrefixField.text);
         settingsManager.setDefaultWinePrefix(winePrefixField.text);
+        settingsManager.setGamepadFullscreenButton(gamepadFullscreenCombo.currentValue);
         settingsManager.setSteamGridDbApiKey(steamGridDbKeyField.text);
         settingsManager.setRommServerUrl(rommUrlField.text.trim().replace(/\/+$/, ""));
         settingsManager.setRommApiKey(rommApiKeyField.text);
@@ -37,6 +38,12 @@ Kirigami.PromptDialog {
         prefixDirField.text = settingsManager.defaultPrefixDir;
         gamePrefixField.text = settingsManager.defaultGamePrefix;
         winePrefixField.text = settingsManager.defaultWinePrefix;
+        for (var gi = 0; gi < gamepadFullscreenCombo.model.length; gi++) {
+            if (gamepadFullscreenCombo.model[gi].value === settingsManager.gamepadFullscreenButton) {
+                gamepadFullscreenCombo.currentIndex = gi;
+                break;
+            }
+        }
         steamGridDbKeyField.text = settingsManager.steamGridDbApiKey;
         rommUrlField.text = settingsManager.rommServerUrl;
         rommApiKeyField.text = settingsManager.rommApiKey;
@@ -81,51 +88,6 @@ Kirigami.PromptDialog {
 
         Kirigami.FormLayout {
             twinFormLayouts: defaultRuntimePicker.formLayout
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Appearance")
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Lights Out:")
-                QQC2.Switch {
-                    checked: settingsManager.lightsOut
-                    onToggled: settingsManager.setLightsOut(checked)
-                }
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Background Color:")
-                opacity: settingsManager.lightsOut ? 1.0 : 0.5
-
-                Rectangle {
-                    width: Kirigami.Units.gridUnit * 4
-                    height: Kirigami.Units.gridUnit * 1.5
-                    color: settingsManager.lightsOutColor
-                    radius: Kirigami.Units.cornerRadius
-                    border.color: Kirigami.Theme.disabledTextColor
-                    border.width: 1
-
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: settingsManager.lightsOut
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: {
-                            lightsOutColorDialog.selectedColor = settingsManager.lightsOutColor;
-                            lightsOutColorDialog.open();
-                        }
-                    }
-                }
-
-                QQC2.Button {
-                    text: i18n("Reset")
-                    enabled: settingsManager.lightsOut
-                    onClicked: settingsManager.setLightsOutColor("#0d1b3e")
-                }
-            }
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
@@ -520,6 +482,77 @@ Kirigami.PromptDialog {
                 font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Appearance")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Lights Out:")
+                QQC2.Switch {
+                    checked: settingsManager.lightsOut
+                    onToggled: settingsManager.setLightsOut(checked)
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Background Color:")
+                opacity: settingsManager.lightsOut ? 1.0 : 0.5
+
+                Rectangle {
+                    width: Kirigami.Units.gridUnit * 4
+                    height: Kirigami.Units.gridUnit * 1.5
+                    color: settingsManager.lightsOutColor
+                    radius: Kirigami.Units.cornerRadius
+                    border.color: Kirigami.Theme.disabledTextColor
+                    border.width: 1
+
+                    MouseArea {
+                        anchors.fill: parent
+                        enabled: settingsManager.lightsOut
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: {
+                            lightsOutColorDialog.selectedColor = settingsManager.lightsOutColor;
+                            lightsOutColorDialog.open();
+                        }
+                    }
+                }
+
+                QQC2.Button {
+                    text: i18n("Reset")
+                    enabled: settingsManager.lightsOut
+                    onClicked: settingsManager.setLightsOutColor("#0d1b3e")
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Gamepad")
+            }
+
+            QQC2.ComboBox {
+                id: gamepadFullscreenCombo
+                Kirigami.FormData.label: i18n("Fullscreen Toggle:")
+                model: [
+                    {
+                        text: i18n("Guide (default)"),
+                        value: "guide"
+                    },
+                    {
+                        text: i18n("Select + L2"),
+                        value: "selectl2"
+                    },
+                    {
+                        text: i18n("L3 + R3"),
+                        value: "l3r3"
+                    }
+                ]
+                textRole: "text"
+                valueRole: "value"
             }
         }
     }
