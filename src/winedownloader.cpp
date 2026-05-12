@@ -1,28 +1,28 @@
-#include "protondownloader.h"
+#include "winedownloader.h"
 #include <QDir>
 #include <QProcess>
 #include <QTemporaryFile>
 
-ProtonDownloader::ProtonDownloader(QObject *parent)
+WineDownloader::WineDownloader(QObject *parent)
     : Downloader(parent)
 {
 }
 
-void ProtonDownloader::setLocalProtonPath(const QString &path)
+void WineDownloader::setLocalWinePath(const QString &path)
 {
-    m_localProtonPath = path;
+    m_localWinePath = path;
 }
 
-const ProtonBuildConfig *ProtonDownloader::findConfig(const QString &buildType)
+const WineBuildConfig *WineDownloader::findConfig(const QString &buildType)
 {
-    for (const auto &cfg : protonBuildConfigs) {
+    for (const auto &cfg : wineBuildConfigs) {
         if (buildType == QLatin1String(cfg.key))
             return &cfg;
     }
-    return &protonBuildConfigs[0];
+    return &wineBuildConfigs[0];
 }
 
-void ProtonDownloader::downloadLatest(const QString &buildType)
+void WineDownloader::downloadLatest(const QString &buildType)
 {
     if (busy())
         return;
@@ -33,8 +33,7 @@ void ProtonDownloader::downloadLatest(const QString &buildType)
     setStatusText(tr("Checking latest release…"));
     setProgress(0.0);
 
-    QString releaseUrl = QLatin1String(config->releaseUrl);
-    QNetworkRequest req{QUrl(releaseUrl)};
+    QNetworkRequest req(QUrl(QLatin1String(config->releaseUrl)));
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Vermouth"));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
     auto *reply = nam().get(req, QByteArray());
@@ -43,7 +42,7 @@ void ProtonDownloader::downloadLatest(const QString &buildType)
     });
 }
 
-void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildConfig *config)
+void WineDownloader::onReleaseFetched(QNetworkReply *reply, const WineBuildConfig *config)
 {
     reply->deleteLater();
 
@@ -65,23 +64,25 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
         return;
     }
 
-    QDir localDir(m_localProtonPath);
+    QString suffix = QLatin1String(config->suffix);
+    QString archiveName = QStringLiteral("wine-%1-%2.tar.xz").arg(tagName, suffix);
+    QString expectedDir = QStringLiteral("wine-%1-%2").arg(tagName, suffix);
+
+    QDir localDir(m_localWinePath);
     for (const auto &entry : localDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        if (entry.contains(tagName, Qt::CaseInsensitive)) {
-            setStatusText(tr("Latest version (%1) is already installed").arg(tagName));
+        if (entry == expectedDir) {
+            setStatusText(tr("Latest version (%1) is already installed").arg(expectedDir));
             setBusy(false);
             Q_EMIT finished();
             return;
         }
     }
 
-    QString archiveName = QString::fromLatin1(config->archivePattern).arg(tagName);
-    QString downloadUrl = QString::fromLatin1(config->downloadUrl).arg(tagName, archiveName);
-    QStringList tarArgs = {QLatin1String(config->tarFlag), QString(), QStringLiteral("-C"), m_localProtonPath};
+    QString downloadUrl = QString::fromLatin1(config->downloadUrl).arg(tagName, suffix);
 
-    setStatusText(tr("Downloading %1…").arg(tagName));
+    setStatusText(tr("Downloading %1…").arg(archiveName));
 
-    auto *tmpFile = new QTemporaryFile(QDir::tempPath() + QStringLiteral("/vermouth-proton-XXXXXX") + QLatin1String(config->tmpExt));
+    auto *tmpFile = new QTemporaryFile(QDir::tempPath() + QStringLiteral("/vermouth-wine-XXXXXX.tar.xz"));
     if (!tmpFile->open()) {
         setStatusText(tr("Failed to create temp file"));
         setBusy(false);
@@ -102,7 +103,7 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
     connect(dlReply, &QNetworkReply::readyRead, this, [dlReply, tmpFile]() {
         tmpFile->write(dlReply->readAll());
     });
-    connect(dlReply, &QNetworkReply::finished, this, [this, dlReply, tmpFile, tarArgs]() {
+    connect(dlReply, &QNetworkReply::finished, this, [this, dlReply, tmpFile]() {
         tmpFile->flush();
         tmpFile->close();
         if (dlReply->error() != QNetworkReply::NoError) {
@@ -116,11 +117,11 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
         setStatusText(tr("Extracting…"));
         setProgress(1.0);
         dlReply->deleteLater();
-        startExtraction(tmpFile, tarArgs);
+        startExtraction(tmpFile);
     });
 }
 
-void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStringList &tarArgs)
+void WineDownloader::startExtraction(QTemporaryFile *archiveFile)
 {
     delete m_extractProc;
     m_extractProc = new QProcess(this);
@@ -137,10 +138,8 @@ void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStrin
         Q_EMIT finished();
     });
 
-    QDir().mkpath(m_localProtonPath);
-    QStringList args = tarArgs;
-    args[1] = archiveFile->fileName();
+    QDir().mkpath(m_localWinePath);
     m_extractProc->setProgram(QStringLiteral("tar"));
-    m_extractProc->setArguments(args);
+    m_extractProc->setArguments({QStringLiteral("-xf"), archiveFile->fileName(), QStringLiteral("-C"), m_localWinePath});
     m_extractProc->start();
 }

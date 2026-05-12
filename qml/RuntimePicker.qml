@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
-import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 
 ColumnLayout {
@@ -10,13 +9,14 @@ ColumnLayout {
 
     readonly property string runtimeType: runtimeCombo.currentValue
     readonly property string protonPath: protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count ? protonModel.get(protonCombo.currentIndex).path : ""
-    readonly property alias wineBinary: wineBinaryField.text
+    readonly property string wineBinary: wineCombo.currentIndex >= 0 && wineCombo.currentIndex < wineModel.count ? wineModel.get(wineCombo.currentIndex).path : ""
     property string sectionLabel: i18n("Runtime")
     property alias formLayout: formLayout
     property var twinFormLayouts
 
     function reset() {
         refreshProton();
+        refreshWine();
         loadFromSettings();
     }
 
@@ -31,7 +31,6 @@ ColumnLayout {
 
     function loadFromSettings() {
         setRuntimeType(settingsManager.defaultRuntimeType);
-        wineBinaryField.text = settingsManager.defaultWineBinary;
 
         var pp = settingsManager.defaultProtonPath;
         protonCombo.currentIndex = -1;
@@ -39,6 +38,17 @@ ColumnLayout {
             for (var i = 0; i < protonModel.count; i++) {
                 if (protonModel.get(i).path === pp) {
                     protonCombo.currentIndex = i;
+                    break;
+                }
+            }
+        }
+
+        var wb = settingsManager.defaultWineBinary;
+        wineCombo.currentIndex = -1;
+        if (wb !== "") {
+            for (var i = 0; i < wineModel.count; i++) {
+                if (wineModel.get(i).path === wb) {
+                    wineCombo.currentIndex = i;
                     break;
                 }
             }
@@ -53,13 +63,20 @@ ColumnLayout {
 
     function loadFromApp(app) {
         setRuntimeType(app.runtimeType);
-        wineBinaryField.text = app.wineBinary;
         refreshProton();
+        refreshWine();
 
         if (app.runtimeType === "proton") {
             for (var i = 0; i < protonModel.count; i++) {
                 if (protonModel.get(i).path === app.protonPath) {
                     protonCombo.currentIndex = i;
+                    break;
+                }
+            }
+        } else if (app.runtimeType === "wine") {
+            for (var i = 0; i < wineModel.count; i++) {
+                if (wineModel.get(i).path === app.wineBinary) {
+                    wineCombo.currentIndex = i;
                     break;
                 }
             }
@@ -71,8 +88,8 @@ ColumnLayout {
             if (protonCombo.currentIndex < 0 || protonCombo.currentIndex >= protonModel.count)
                 return i18n("Please select a Proton version.");
         } else if (runtimeCombo.currentValue === "wine") {
-            if (wineBinaryField.text.trim() === "")
-                return i18n("Wine binary path is required.");
+            if (wineCombo.currentIndex < 0 || wineCombo.currentIndex >= wineModel.count)
+                return i18n("Please select a Wine version.");
         }
         return "";
     }
@@ -99,14 +116,46 @@ ColumnLayout {
         protonCombo.currentIndex = -1;
     }
 
+    function refreshWine() {
+        var prevPath = "";
+        if (wineCombo.currentIndex >= 0 && wineCombo.currentIndex < wineModel.count)
+            prevPath = wineModel.get(wineCombo.currentIndex).path;
+        wineModel.clear();
+        var versions = wineScanner.findWineVersions();
+        for (let i = 0; i < versions.length; i++) {
+            wineModel.append({
+                "label": versions[i].label,
+                "path": versions[i].path
+            });
+        }
+        for (let i = 0; i < wineModel.count; i++) {
+            if (wineModel.get(i).path === prevPath) {
+                wineCombo.currentIndex = i;
+                return;
+            }
+        }
+        wineCombo.currentIndex = -1;
+    }
+
     ListModel {
         id: protonModel
+    }
+
+    ListModel {
+        id: wineModel
     }
 
     Connections {
         target: protonDownloader
         function onFinished() {
             root.refreshProton();
+        }
+    }
+
+    Connections {
+        target: wineDownloader
+        function onFinished() {
+            root.refreshWine();
         }
     }
 
@@ -155,34 +204,86 @@ ColumnLayout {
                 onClicked: root.refreshProton()
             }
             QQC2.ToolButton {
+                id: protonDownloadButton
                 icon.name: "download"
                 enabled: !protonDownloader.busy
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download latest GE Proton")
-                onClicked: protonDownloader.downloadLatest()
+                QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download Proton build")
+                onClicked: protonDownloadMenu.popup()
+
+                QQC2.Menu {
+                    id: protonDownloadMenu
+                    QQC2.MenuItem {
+                        text: i18n("Download latest GE Proton")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("ge")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Proton-CachyOS")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("cachyos")
+                    }
+                }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
             visible: runtimeCombo.currentValue === "wine"
-            Kirigami.FormData.label: i18n("Wine Binary:")
-            QQC2.TextField {
-                id: wineBinaryField
+            Kirigami.FormData.label: i18n("Wine Version:")
+            QQC2.ComboBox {
+                id: wineCombo
                 Layout.fillWidth: true
-                placeholderText: "/usr/bin/wine"
+                model: wineModel
+                textRole: "label"
+                displayText: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : currentText
+                QQC2.ToolTip.visible: hovered && wineModel.count === 0
+                QQC2.ToolTip.text: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : ""
             }
             QQC2.ToolButton {
-                icon.name: "document-open"
-                onClicked: wineBinaryDialog.open()
+                icon.name: "folder-open"
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: i18n("Open Vermouth Wine folder (%1)", wineScanner.localWinePath())
+                onClicked: Qt.openUrlExternally("file://" + wineScanner.localWinePath())
+            }
+            QQC2.ToolButton {
+                icon.name: "view-refresh"
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: i18n("Refresh Wine versions")
+                onClicked: root.refreshWine()
+            }
+            QQC2.ToolButton {
+                id: wineDownloadButton
+                icon.name: "download"
+                enabled: !wineDownloader.busy
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: wineDownloader.statusText ? wineDownloader.statusText : i18n("Download Wine build")
+                onClicked: wineDownloadMenu.popup()
+
+                QQC2.Menu {
+                    id: wineDownloadMenu
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Kron4ek Wow64 build")
+                        enabled: !wineDownloader.busy
+                        onTriggered: wineDownloader.downloadLatest("wow64")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Kron4ek regular build")
+                        enabled: !wineDownloader.busy
+                        onTriggered: wineDownloader.downloadLatest("regular")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Kron4ek TKG build")
+                        enabled: !wineDownloader.busy
+                        onTriggered: wineDownloader.downloadLatest("tkg")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Kron4ek TKG Wow64 build")
+                        enabled: !wineDownloader.busy
+                        onTriggered: wineDownloader.downloadLatest("tkg-wow64")
+                    }
+                }
             }
         }
-    }
-
-    FileDialog {
-        id: wineBinaryDialog
-        title: i18n("Select Wine Binary")
-        currentFolder: "file://" + protonScanner.homePath()
-        onAccepted: wineBinaryField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
     }
 }
