@@ -12,5 +12,4 @@ public:
 
     Q_INVOKABLE QVariantList findWineVersions() const;
     Q_INVOKABLE QString localWinePath() const;
-    Q_INVOKABLE QString homePath() const;
 };

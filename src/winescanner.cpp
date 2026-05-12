@@ -41,8 +41,3 @@ QString WineScanner::localWinePath() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/wines");
 }
-
-QString WineScanner::homePath() const
-{
-    return QDir::homePath();
-}
