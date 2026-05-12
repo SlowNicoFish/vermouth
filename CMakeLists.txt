@@ -46,6 +46,8 @@ qt_add_executable(vermouth
     src/iconextractor.cpp
     src/settingsmanager.cpp
     src/protondownloader.cpp
+    src/winedownloader.cpp
+    src/winescanner.cpp
     src/umudownloader.cpp
     src/downloader.cpp
     src/singleinstance.cpp
