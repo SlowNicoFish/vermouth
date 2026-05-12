@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.7.5 LANGUAGES CXX)
+project(vermouth VERSION 1.8.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -46,6 +46,8 @@ qt_add_executable(vermouth
     src/iconextractor.cpp
     src/settingsmanager.cpp
     src/protondownloader.cpp
+    src/winedownloader.cpp
+    src/winescanner.cpp
     src/umudownloader.cpp
     src/downloader.cpp
     src/singleinstance.cpp

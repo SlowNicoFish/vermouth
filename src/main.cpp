@@ -15,6 +15,8 @@
 #include "steamgriddb.h"
 #include "steammodel.h"
 #include "umudownloader.h"
+#include "winedownloader.h"
+#include "winescanner.h"
 #include <KAboutData>
 #include <KLocalizedContext>
 #include <KLocalizedString>
@@ -160,11 +162,14 @@ int main(int argc, char *argv[])
     GamepadHandler gamepadHandler;
     AppModel appModel;
     ProtonScanner protonScanner;
+    WineScanner wineScanner;
     DesktopFileWriter desktopWriter;
     IconExtractor iconExtractor;
     SettingsManager settingsManager;
     ProtonDownloader protonDownloader;
     protonDownloader.setLocalProtonPath(protonScanner.localProtonPath());
+    WineDownloader wineDownloader;
+    wineDownloader.setLocalWinePath(wineScanner.localWinePath());
 
     UmuDownloader umuDownloader;
     umuDownloader.setInstallPath(protonScanner.localProtonPath() + QStringLiteral("/umu"));
@@ -261,6 +266,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
+    engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
