@@ -27,7 +27,7 @@ public:
     }
 
     Q_INVOKABLE void launchEntry(const QVariantMap &app);
-    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false);
+    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false, const QString &launchOptions = {});
     Q_INVOKABLE QString detectRetroarchPath() const;
     Q_INVOKABLE QStringList availableCoresForPlatform(const QString &platformSlug) const;
     Q_INVOKABLE QString buildRomLaunchCommand(const QVariantMap &rom) const;

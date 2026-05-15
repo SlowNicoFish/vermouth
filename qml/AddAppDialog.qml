@@ -458,7 +458,7 @@ Kirigami.Dialog {
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Runtime Options")
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             RowLayout {
@@ -494,15 +494,15 @@ Kirigami.Dialog {
             QQC2.TextField {
                 id: launchOptionsField
                 Layout.fillWidth: true
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 text: i18n("Write output to log file")
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             Repeater {

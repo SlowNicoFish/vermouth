@@ -203,7 +203,7 @@ QString Launcher::detectRetroarchPath() const
     return {};
 }
 
-void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
+void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QString &launchOptions)
 {
     QString romPath = rom[QStringLiteral("localRomPath")].toString();
     QString name = rom[QStringLiteral("name")].toString();
@@ -246,11 +246,11 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
                QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
                romPath,
                env,
-               {},
+               launchOptions,
                enableLogging,
                name);
     else
-        launch(m_retroarchBinary, baseFlags, romPath, env, {}, enableLogging, name);
+        launch(m_retroarchBinary, baseFlags, romPath, env, launchOptions, enableLogging, name);
 }
 
 void Launcher::setGlobalEnvVars(const QStringList &vars)
@@ -380,7 +380,7 @@ void Launcher::launchEntry(const QVariantMap &app)
         rom[QStringLiteral("platformSlug")] = platformSlug;
         rom[QStringLiteral("customCorePath")] = customCore;
         rom[QStringLiteral("romId")] = 0;
-        launchRom(rom, logging);
+        launchRom(rom, logging, opts);
         return;
     }
 
