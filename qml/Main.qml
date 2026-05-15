@@ -576,6 +576,34 @@ Kirigami.ApplicationWindow {
     }
 
     Kirigami.PromptDialog {
+        id: steamFoundDialog
+        title: i18n("Steam installation detected")
+        subtitle: i18n("Vermouth found a Steam installation on your system. Would you like to import some games from your Steam library now?")
+        standardButtons: Kirigami.Dialog.NoButton
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18n("Import from Steam")
+                icon.name: "steam"
+                onTriggered: {
+                    steamFoundDialog.close();
+                    steamImportDialog.openDialog();
+                }
+            },
+            Kirigami.Action {
+                text: i18n("Not now")
+                icon.name: "dialog-cancel"
+                onTriggered: steamFoundDialog.close();
+            }
+        ]
+
+        QQC2.CheckBox {
+            text: i18n("Don't show me tips")
+            checked: !settingsManager.showTips
+            onToggled: settingsManager.setShowTips(!checked)
+        }
+    }
+
+    Kirigami.PromptDialog {
         id: prefixNotReadyDialog
         property string appName
         title: i18n("Prefix not ready")
@@ -665,6 +693,24 @@ Kirigami.ApplicationWindow {
             bigPictureAction.trigger();
         if (typeof openExePath !== "undefined" && openExePath !== "")
             root.openExe(openExePath);
+        else
+            maybeOfferSteamImport();
+    }
+
+    function maybeOfferSteamImport() {
+        var firstRun = !settingsManager.firstRunComplete;
+        settingsManager.setFirstRunComplete(true);
+        if (!firstRun)
+            return;
+        if (root.bigPicture)
+            return;
+        if (!settingsManager.showTips)
+            return;
+        if (appModel.count > 0)
+            return;
+        if (!steamModel.isSteamInstalled())
+            return;
+        steamFoundDialog.open();
     }
 
     Connections {

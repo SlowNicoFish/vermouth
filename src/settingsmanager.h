@@ -27,6 +27,8 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString rommApiKey READ rommApiKey WRITE setRommApiKey NOTIFY rommApiKeyChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
     Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
+    Q_PROPERTY(bool firstRunComplete READ firstRunComplete WRITE setFirstRunComplete NOTIFY firstRunCompleteChanged)
+    Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -91,6 +93,12 @@ public:
     QString romCacheDir() const;
     Q_INVOKABLE void setRomCacheDir(const QString &dir);
 
+    bool firstRunComplete() const;
+    Q_INVOKABLE void setFirstRunComplete(bool complete);
+
+    bool showTips() const;
+    Q_INVOKABLE void setShowTips(bool enabled);
+
     QVariantMap rommCoreMap() const;
     Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
     Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
@@ -118,6 +126,8 @@ Q_SIGNALS:
     void rommApiKeyChanged();
     void retroarchPathChanged();
     void romCacheDirChanged();
+    void firstRunCompleteChanged();
+    void showTipsChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();
 

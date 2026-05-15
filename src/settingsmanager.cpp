@@ -285,6 +285,32 @@ void SettingsManager::setRomCacheDir(const QString &dir)
     Q_EMIT romCacheDirChanged();
 }
 
+bool SettingsManager::firstRunComplete() const
+{
+    return m_settings.value(QStringLiteral("firstRunComplete"), false).toBool();
+}
+
+void SettingsManager::setFirstRunComplete(bool complete)
+{
+    if (firstRunComplete() == complete)
+        return;
+    m_settings.setValue(QStringLiteral("firstRunComplete"), complete);
+    Q_EMIT firstRunCompleteChanged();
+}
+
+bool SettingsManager::showTips() const
+{
+    return m_settings.value(QStringLiteral("showTips"), true).toBool();
+}
+
+void SettingsManager::setShowTips(bool enabled)
+{
+    if (showTips() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("showTips"), enabled);
+    Q_EMIT showTipsChanged();
+}
+
 QVariantMap SettingsManager::rommCoreMap() const
 {
     QString json = m_settings.value(QStringLiteral("rommCoreMap")).toString();

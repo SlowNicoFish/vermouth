@@ -531,6 +531,26 @@ Kirigami.PromptDialog {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Tips")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Show Tips:")
+                QQC2.Switch {
+                    checked: settingsManager.showTips
+                    onToggled: settingsManager.setShowTips(checked)
+                }
+                QQC2.Label {
+                    text: i18n("Show helpful prompts like the Steam import suggestion on first launch")
+                    wrapMode: Text.WordWrap
+                    font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                    color: Kirigami.Theme.disabledTextColor
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Gamepad")
             }
 

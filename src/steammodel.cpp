@@ -97,6 +97,11 @@ void SteamModel::scanLibraries()
     watcher->setFuture(QtConcurrent::run(&SteamLibrary::scan));
 }
 
+bool SteamModel::isSteamInstalled() const
+{
+    return !SteamLibrary::steamRootPaths().isEmpty();
+}
+
 QVariantMap SteamModel::getGame(int index) const
 {
     if (index < 0 || index >= m_entries.size())

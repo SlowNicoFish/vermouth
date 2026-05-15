@@ -625,5 +625,43 @@ msgstr "Изберете папка за скенирање на Proton"
 msgid "Select Background Color"
 msgstr ""
 
+#: po/../qml/Main.qml:75 po/../qml/Main.qml:585 po/../qml/SteamImportDialog.qml:8
+msgid "Import from Steam"
+msgstr "Увези од Steam"
+
+#: po/../qml/Main.qml:580
+msgid "Steam installation detected"
+msgstr "Откриена е инсталација на Steam"
+
+#: po/../qml/Main.qml:581
+msgid ""
+"Vermouth found a Steam installation on your system. Would you like to import "
+"some games from your Steam library now?"
+msgstr ""
+"Vermouth пронајде инсталација на Steam на вашиот систем. Дали сакате сега да "
+"увезете некои игри од вашата Steam библиотека?"
+
+#: po/../qml/Main.qml:593
+msgid "Not now"
+msgstr "Не сега"
+
+#: po/../qml/Main.qml:600
+msgid "Don't show me tips"
+msgstr "Не ми прикажувај совети"
+
+#: po/../qml/SettingsDialog.qml:534
+msgid "Tips"
+msgstr "Совети"
+
+#: po/../qml/SettingsDialog.qml:539
+msgid "Show Tips:"
+msgstr "Прикажувај совети:"
+
+#: po/../qml/SettingsDialog.qml:545
+msgid "Show helpful prompts like the Steam import suggestion on first launch"
+msgstr ""
+"Прикажувај корисни предлози и совети "
+
+
 #~ msgid "Run Standalone EXE"
 #~ msgstr "Стартување на самостоен EXE"
