@@ -576,30 +576,68 @@ Kirigami.ApplicationWindow {
     }
 
     Kirigami.PromptDialog {
-        id: steamFoundDialog
-        title: i18n("Steam installation detected")
-        subtitle: i18n("Vermouth found a Steam installation on your system. Would you like to import some games from your Steam library now?")
+        id: welcomeDialog
+        title: i18n("Welcome to Vermouth")
+        subtitle: i18n("Get started by adding your games to the library.")
         standardButtons: Kirigami.Dialog.NoButton
+        spacing: Kirigami.Units.mediumSpacing
         customFooterActions: [
             Kirigami.Action {
-                text: i18n("Import from Steam")
-                icon.name: "steam"
-                onTriggered: {
-                    steamFoundDialog.close();
-                    steamImportDialog.openDialog();
-                }
+                text: i18n("Don't show me tips")
+                checkable: true
+                checked: !settingsManager.showTips
+                onTriggered: settingsManager.setShowTips(!checked)
             },
             Kirigami.Action {
                 text: i18n("Not now")
                 icon.name: "dialog-cancel"
-                onTriggered: steamFoundDialog.close();
+                onTriggered: welcomeDialog.close()
             }
         ]
 
-        QQC2.CheckBox {
-            text: i18n("Don't show me tips")
-            checked: !settingsManager.showTips
-            onToggled: settingsManager.setShowTips(!checked)
+        ColumnLayout {
+            spacing: Kirigami.Units.mediumSpacing
+
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: Kirigami.Units.mediumSpacing
+
+                QQC2.Button {
+                    icon.name: "list-add"
+                    text: i18n("Add a Game")
+                    onClicked: {
+                        addDialog.openForNew();
+                    }
+                }
+
+                QQC2.Button {
+                    icon.name: "steam"
+                    text: i18n("Import from Steam")
+                    visible: steamModel.isSteamInstalled()
+                    onClicked: {
+                        steamImportDialog.openDialog();
+                    }
+                }
+            }
+
+            QQC2.Label {
+                text: i18n("For a better experience, register for a free SteamGridDB account at steamgriddb.com and set your API key in Settings to auto-download game artwork.")
+                visible: settingsManager.steamGridDbApiKey === ""
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                opacity: 0.7
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 1
+            }
+
+            QQC2.Button {
+                icon.name: "configure"
+                text: i18n("Open Settings")
+                visible: settingsManager.steamGridDbApiKey === ""
+                Layout.alignment: Qt.AlignHCenter
+                onClicked: {
+                    settingsDialog.openDialog();
+                }
+            }
         }
     }
 
@@ -694,23 +732,21 @@ Kirigami.ApplicationWindow {
         if (typeof openExePath !== "undefined" && openExePath !== "")
             root.openExe(openExePath);
         else
-            maybeOfferSteamImport();
+            maybeShowWelcome();
     }
 
-    function maybeOfferSteamImport() {
+    function maybeShowWelcome() {
         var firstRun = !settingsManager.firstRunComplete;
-        settingsManager.setFirstRunComplete(true);
         if (!firstRun)
             return;
+        settingsManager.setFirstRunComplete(true);
         if (root.bigPicture)
             return;
         if (!settingsManager.showTips)
             return;
         if (appModel.count > 0)
             return;
-        if (!steamModel.isSteamInstalled())
-            return;
-        steamFoundDialog.open();
+        welcomeDialog.open();
     }
 
     Connections {
