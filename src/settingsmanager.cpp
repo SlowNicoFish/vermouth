@@ -298,6 +298,19 @@ void SettingsManager::setFirstRunComplete(bool complete)
     Q_EMIT firstRunCompleteChanged();
 }
 
+bool SettingsManager::sleepInhibited() const
+{
+    return m_settings.value(QStringLiteral("sleepInhibited"), false).toBool();
+}
+
+void SettingsManager::setSleepInhibited(bool inhibited)
+{
+    if (sleepInhibited() == inhibited)
+        return;
+    m_settings.setValue(QStringLiteral("sleepInhibited"), inhibited);
+    Q_EMIT sleepInhibitedChanged();
+}
+
 bool SettingsManager::showTips() const
 {
     return m_settings.value(QStringLiteral("showTips"), true).toBool();

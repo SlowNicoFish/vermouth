@@ -193,6 +193,14 @@ int main(int argc, char *argv[])
     QObject::connect(&app, &QApplication::aboutToQuit, [&]() {
         launcher.restoreHdrState();
     });
+
+    // Restore sleep inhibition state
+    if (settingsManager.sleepInhibited() && !launcher.sleepInhibited()) {
+        launcher.toggleSleepInhibit();
+    }
+    QObject::connect(&launcher, &Launcher::sleepInhibitedChanged, [&]() {
+        settingsManager.setSleepInhibited(launcher.sleepInhibited());
+    });
     QObject::connect(&umuDownloader, &UmuDownloader::finished, [&](const QString &binPath) {
         if (settingsManager.umuPath().isEmpty())
             settingsManager.setUmuPath(binPath);

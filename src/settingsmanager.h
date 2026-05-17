@@ -29,6 +29,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
     Q_PROPERTY(bool firstRunComplete READ firstRunComplete WRITE setFirstRunComplete NOTIFY firstRunCompleteChanged)
     Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
+    Q_PROPERTY(bool sleepInhibited READ sleepInhibited WRITE setSleepInhibited NOTIFY sleepInhibitedChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -99,6 +100,9 @@ public:
     bool showTips() const;
     Q_INVOKABLE void setShowTips(bool enabled);
 
+    bool sleepInhibited() const;
+    Q_INVOKABLE void setSleepInhibited(bool inhibited);
+
     QVariantMap rommCoreMap() const;
     Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
     Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
@@ -128,6 +132,7 @@ Q_SIGNALS:
     void romCacheDirChanged();
     void firstRunCompleteChanged();
     void showTipsChanged();
+    void sleepInhibitedChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();
 
