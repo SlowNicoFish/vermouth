@@ -115,6 +115,14 @@ void GamepadHandler::sendKey(int qtKey)
 #ifdef HAVE_SDL2
 void GamepadHandler::pollEvents()
 {
+    // Don't process gamepad events when the app doesn't have focus
+    // (e.g. a launched game window is active).
+    if (QGuiApplication::applicationState() != Qt::ApplicationActive) {
+        SDL_Event ev;
+        while (pSDL_PollEvent(&ev)) { }
+        return;
+    }
+
     SDL_Event ev;
     while (pSDL_PollEvent(&ev)) {
         switch (ev.type) {
