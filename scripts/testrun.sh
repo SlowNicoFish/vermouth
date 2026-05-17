@@ -6,7 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BIN="$SCRIPT_DIR/build/bin/vermouth"
+BIN="$SCRIPT_DIR/../build/bin/vermouth"
 
 if [ ! -x "$BIN" ]; then
     echo "Error: $BIN not found. Build first: cmake -B build && cmake --build build" >&2
