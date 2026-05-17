@@ -315,6 +315,8 @@ To detect Proton versions from your Steam installation, add `~/.steam:ro` and `~
 
 To create desktop shortcuts for your games, add `xdg-desktop` to filesystem permissions.
 
+HDR toggle doesn't work on flathub, as it requires very broad access to the operating system.
+
 ---
 
 ## Contributing
