@@ -87,6 +87,7 @@ private:
     QStringList m_globalEnvVars;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;
+    QString m_inhibitPortalRequestPath;
     bool m_hdrEnabled = false;
     bool m_hdrSupported = false;
     bool m_hdrEnabledByUs = false;

@@ -4,6 +4,8 @@
 #include <QCursor>
 #include <QDBusConnection>
 #include <QDBusInterface>
+#include <QDBusMessage>
+#include <QDBusObjectPath>
 #include <QDBusReply>
 #include <QDBusUnixFileDescriptor>
 #include <QDateTime>
@@ -526,18 +528,53 @@ QStringList Launcher::platformSlugs() const
 
 bool Launcher::sleepInhibited() const
 {
-    return m_inhibitFd >= 0;
+    return m_inhibitFd >= 0 || !m_inhibitPortalRequestPath.isEmpty();
 }
 
 void Launcher::toggleSleepInhibit()
 {
     if (sleepInhibited()) {
-        ::close(m_inhibitFd);
-        m_inhibitFd = -1;
+        if (!m_inhibitPortalRequestPath.isEmpty()) {
+            QDBusInterface request(QStringLiteral("org.freedesktop.portal.Desktop"),
+                                   m_inhibitPortalRequestPath,
+                                   QStringLiteral("org.freedesktop.portal.Request"),
+                                   QDBusConnection::sessionBus());
+            request.call(QStringLiteral("Close"));
+            m_inhibitPortalRequestPath.clear();
+        }
+        if (m_inhibitFd >= 0) {
+            ::close(m_inhibitFd);
+            m_inhibitFd = -1;
+        }
         Q_EMIT sleepInhibitedChanged();
         return;
     }
 
+    // Try the portal first (works in Flatpak and on any modern desktop with xdg-desktop-portal)
+    {
+        QDBusInterface portal(QStringLiteral("org.freedesktop.portal.Desktop"),
+                              QStringLiteral("/org/freedesktop/portal/desktop"),
+                              QStringLiteral("org.freedesktop.portal.Inhibit"),
+                              QDBusConnection::sessionBus());
+
+        QDBusMessage portalReply = portal.call(QStringLiteral("Inhibit"),
+                                               QStringLiteral(""),
+                                               (quint32)(4 | 8), // SUSPEND | IDLE
+                                               QVariantMap{{QStringLiteral("reason"), QStringLiteral("User requested sleep inhibition")}});
+
+        if (portalReply.type() == QDBusMessage::ReplyMessage) {
+            const QList<QVariant> args = portalReply.arguments();
+            if (!args.isEmpty()) {
+                m_inhibitPortalRequestPath = args[0].value<QDBusObjectPath>().path();
+            }
+        }
+        if (!m_inhibitPortalRequestPath.isEmpty()) {
+            Q_EMIT sleepInhibitedChanged();
+            return;
+        }
+    }
+
+    // Portal unavailable — fall back to logind on the system bus
     QDBusInterface manager(QStringLiteral("org.freedesktop.login1"),
                            QStringLiteral("/org/freedesktop/login1"),
                            QStringLiteral("org.freedesktop.login1.Manager"),
