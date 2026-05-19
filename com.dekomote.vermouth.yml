@@ -5,17 +5,13 @@ sdk: org.kde.Sdk
 command: vermouth
 
 finish-args:
-  # Needed for the app itself
+  - --share=ipc
   - --share=network
   - --socket=fallback-x11
   - --socket=wayland
-  # Needed for the games
   - --socket=pulseaudio
-  - --device=dri
-  - --device=input
-  # Needed for finding the steam runtimes
+  - --device=all
   - --filesystem=home
-  # Needed for the bwrap used by the proton/umu
   - --allow=devel
   - --allow=per-app-dev-shm
 
