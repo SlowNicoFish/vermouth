@@ -61,16 +61,16 @@ Kirigami.Dialog {
         entry["launchOptions"] = launchOptionsField.text;
         entry["enableLogging"] = false;
 
-        var defaultPrefix = protonScanner.prefixBasePath() + "/vermouth_default";
-
         if (runtimePicker.runtimeType === "proton") {
+            const prefix = protonScanner.prefixBasePath() + "/vermouth_default";
             entry["runtimeType"] = "proton";
             entry["protonPath"] = runtimePicker.protonPath;
-            entry["protonPrefix"] = defaultPrefix;
+            entry["protonPrefix"] = prefix;
         } else if (runtimePicker.runtimeType === "wine") {
+            const prefix = protonScanner.winePrefixBasePath() + "/vermouth_default";
             entry["runtimeType"] = "wine";
             entry["wineBinary"] = runtimePicker.wineBinary;
-            entry["winePrefix"] = defaultPrefix;
+            entry["winePrefix"] = prefix;
         } else {
             entry["runtimeType"] = "native";
         }

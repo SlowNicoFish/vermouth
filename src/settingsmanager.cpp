@@ -34,6 +34,32 @@ void SettingsManager::setDefaultGamePrefix(const QString &path)
     Q_EMIT defaultGamePrefixChanged();
 }
 
+QString SettingsManager::defaultWinePrefix() const
+{
+    return m_settings.value(QStringLiteral("defaultWinePrefix")).toString();
+}
+
+void SettingsManager::setDefaultWinePrefix(const QString &path)
+{
+    if (defaultWinePrefix() == path)
+        return;
+    m_settings.setValue(QStringLiteral("defaultWinePrefix"), path);
+    Q_EMIT defaultWinePrefixChanged();
+}
+
+QString SettingsManager::gamepadFullscreenButton() const
+{
+    return m_settings.value(QStringLiteral("gamepadFullscreenButton"), QStringLiteral("guide")).toString();
+}
+
+void SettingsManager::setGamepadFullscreenButton(const QString &button)
+{
+    if (gamepadFullscreenButton() == button)
+        return;
+    m_settings.setValue(QStringLiteral("gamepadFullscreenButton"), button);
+    Q_EMIT gamepadFullscreenButtonChanged();
+}
+
 QStringList SettingsManager::extraProtonPaths() const
 {
     return m_settings.value(QStringLiteral("extraProtonPaths")).toStringList();
@@ -257,6 +283,45 @@ void SettingsManager::setRomCacheDir(const QString &dir)
         return;
     m_settings.setValue(QStringLiteral("romCacheDir"), dir);
     Q_EMIT romCacheDirChanged();
+}
+
+bool SettingsManager::firstRunComplete() const
+{
+    return m_settings.value(QStringLiteral("firstRunComplete"), false).toBool();
+}
+
+void SettingsManager::setFirstRunComplete(bool complete)
+{
+    if (firstRunComplete() == complete)
+        return;
+    m_settings.setValue(QStringLiteral("firstRunComplete"), complete);
+    Q_EMIT firstRunCompleteChanged();
+}
+
+bool SettingsManager::sleepInhibited() const
+{
+    return m_settings.value(QStringLiteral("sleepInhibited"), false).toBool();
+}
+
+void SettingsManager::setSleepInhibited(bool inhibited)
+{
+    if (sleepInhibited() == inhibited)
+        return;
+    m_settings.setValue(QStringLiteral("sleepInhibited"), inhibited);
+    Q_EMIT sleepInhibitedChanged();
+}
+
+bool SettingsManager::showTips() const
+{
+    return m_settings.value(QStringLiteral("showTips"), true).toBool();
+}
+
+void SettingsManager::setShowTips(bool enabled)
+{
+    if (showTips() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("showTips"), enabled);
+    Q_EMIT showTipsChanged();
 }
 
 QVariantMap SettingsManager::rommCoreMap() const

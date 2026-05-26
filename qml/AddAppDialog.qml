@@ -90,35 +90,9 @@ Kirigami.Dialog {
             return;
         }
         if (protonPrefixField.text === "")
-            protonPrefixField.text = resolvePrefix();
+            protonPrefixField.text = resolvePrefix("proton");
         if (winePrefixField.text === "")
-            winePrefixField.text = resolvePrefix();
-    }
-
-    function cleanupInstaller() {
-        dialog.pendingInstallerRun = false;
-        dialog.offerExePickAfterInstaller = false;
-    }
-
-    function runInstallerInPrefix() {
-        if (!["proton", "wine"].includes(runtimePicker.runtimeType))
-            return;
-
-        pendingInstallerRun = true;
-        installerRunning = true;
-
-        let resolvedPrefix = resolvePrefix();
-
-        installerPid = launcher.runInPrefix({
-            name: nameField.text,
-            runtimeType: runtimePicker.runtimeType,
-            protonPath: runtimePicker.protonPath,
-            protonPrefix: resolvedPrefix,
-            wineBinary: runtimePicker.wineBinary,
-            winePrefix: resolvedPrefix,
-            launchOptions: "",
-            enableLogging: false
-        }, installerExePath) || 0;
+            winePrefixField.text = resolvePrefix("wine");
     }
 
     function openForNewWithExe(exePath) {
@@ -179,16 +153,17 @@ Kirigami.Dialog {
         return true;
     }
 
-    function resolvePrefix() {
-        var defaultPrefix = settingsManager.defaultGamePrefix;
-        return defaultPrefix !== "" ? defaultPrefix : dialog.prefixBasePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+    function resolvePrefix(runtimeType) {
+        var defaultPrefix = runtimeType === "wine" ? settingsManager.defaultWinePrefix : settingsManager.defaultGamePrefix;
+        var basePath = runtimeType === "wine" ? protonScanner.winePrefixBasePath() : dialog.prefixBasePath;
+        return defaultPrefix !== "" ? defaultPrefix : basePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
     }
 
     function doSave() {
         var rt = runtimePicker.runtimeType;
         var protonPath = runtimePicker.protonPath;
-        var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix();
-        var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix();
+        var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix("proton");
+        var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix("wine");
         var sgdbId = parseInt(steamGridDbIdField.text);
         if (isNaN(sgdbId) || sgdbId < 0)
             sgdbId = 0;
@@ -499,7 +474,7 @@ Kirigami.Dialog {
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Runtime Options")
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             RowLayout {
@@ -524,7 +499,7 @@ Kirigami.Dialog {
                 QQC2.TextField {
                     id: winePrefixField
                     Layout.fillWidth: true
-                    placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : "~/.wine"
+                    placeholderText: settingsManager.defaultWinePrefix !== "" ? settingsManager.defaultWinePrefix : protonScanner.winePrefixBasePath() + "/mygame"
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open"
@@ -535,15 +510,15 @@ Kirigami.Dialog {
             QQC2.TextField {
                 id: launchOptionsField
                 Layout.fillWidth: true
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
-                visible: runtimePicker.runtimeType == "proton" || runtimePicker.runtimeType == "wine"
                 text: i18n("Write output to log file")
+                visible: runtimePicker.runtimeType !== "steam"
             }
 
             Repeater {
@@ -619,7 +594,7 @@ Kirigami.Dialog {
     FolderDialog {
         id: winePrefixFolderDialog
         title: i18n("Select Wine Prefix Folder")
-        currentFolder: "file://" + dialog.prefixBasePath
+        currentFolder: "file://" + protonScanner.winePrefixBasePath()
         onAccepted: winePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 

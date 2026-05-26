@@ -34,6 +34,7 @@ public:
 
     Q_INVOKABLE void scanLibraries();
     Q_INVOKABLE QVariantMap getGame(int index) const;
+    Q_INVOKABLE bool isSteamInstalled() const;
 
 Q_SIGNALS:
     void countChanged();

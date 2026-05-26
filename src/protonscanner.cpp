@@ -134,6 +134,11 @@ QString ProtonScanner::prefixBasePath() const
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/prefixes");
 }
 
+QString ProtonScanner::winePrefixBasePath() const
+{
+    return prefixBasePath() + QStringLiteral("/wines");
+}
+
 QString ProtonScanner::localProtonPath() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/protons");

@@ -32,6 +32,10 @@ Q_SIGNALS:
     void r1Pressed();
     void l2Pressed();
     void r2Pressed();
+    void l3Pressed();
+    void r3Pressed();
+    void l3r3Pressed();
+    void selectL2Pressed();
     void connectedChanged();
 
 private:
@@ -42,8 +46,11 @@ private:
     int m_leftX = 0, m_leftY = 0;
     int m_rightX = 0, m_rightY = 0;
     int m_axisDirLast = 0;
+    bool m_selectHeld = false;
     bool m_l2WasPressed = false;
     bool m_r2WasPressed = false;
+    bool m_l3Held = false;
+    bool m_r3Held = false;
     static constexpr int kDeadzone = 8000;
     void pollEvents();
     int axisDirection() const;

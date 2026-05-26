@@ -9,9 +9,8 @@ finish-args:
   - --share=network
   - --socket=fallback-x11
   - --socket=wayland
-  - --device=dri
   - --socket=pulseaudio
-  - --allow=per-app-dev-shm
+  - --device=all
   - --filesystem=home
   - --allow=devel
   - --allow=per-app-dev-shm
@@ -24,4 +23,5 @@ modules:
     sources:
       - type: git
         url: https://github.com/dekomote/vermouth.git
-        tag: v1.7.5
+        tag: v1.8.2
+        commit: 62387df135b5e0bff04fb7142e708a08fa62f0c1

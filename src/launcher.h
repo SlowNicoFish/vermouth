@@ -27,7 +27,7 @@ public:
     }
 
     Q_INVOKABLE qint64 launchEntry(const QVariantMap &app);
-    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false);
+    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false, const QString &launchOptions = {});
     Q_INVOKABLE QString detectRetroarchPath() const;
     Q_INVOKABLE QStringList availableCoresForPlatform(const QString &platformSlug) const;
     Q_INVOKABLE QString buildRomLaunchCommand(const QVariantMap &rom) const;
@@ -88,6 +88,7 @@ private:
     QStringList m_globalEnvVars;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;
+    QString m_inhibitPortalRequestPath;
     bool m_hdrEnabled = false;
     bool m_hdrSupported = false;
     bool m_hdrEnabledByUs = false;
