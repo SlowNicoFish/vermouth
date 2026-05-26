@@ -119,9 +119,9 @@ Kirigami.Dialog {
             winePrefix: resolvedPrefix,
             launchOptions: "",
             enableLogging: false
-        }, dialog.installerExePath) || 0;
+        }, dialog.installerExePath);
 
-        if (dialog.installerPid === 0) {
+        if (dialog.installerPid <= 0) {
             dialog.validationError = i18n("Failed to start installer.");
             dialog.cleanupInstaller();
             return;
